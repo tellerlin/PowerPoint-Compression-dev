@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "scripts": {
         "dev": "vite dev",
-        "build": "vite build && mkdir -p build && cp -r .svelte-kit/output/* build/",
+		"build": "vite build && mkdir -p build && cp -r .svelte-kit/output/client build/ && cp -r .svelte-kit/output/server build/ && cp -r .svelte-kit/output/prerendered build/",
         "preview": "vite preview",
         "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
