@@ -2,16 +2,16 @@
     export let originalSize = 0;  
     export let compressedSize = 0;  
     export let downloadUrl = '';  
-    export let originalFileName = '';  // 新增：接收原始文件名  
+    export let originalFileName = '';  // Receive original filename as a prop  
 
     function formatSize(bytes: number): string {  
         return `${(bytes / 1024 / 1024).toFixed(2)} MB`;  
     }  
 
-    let downloadFileName: string;  // 用于存储下载文件名  
+    let downloadFileName: string;  // To store the download filename  
 
     if (downloadUrl) {  
-        // 获取文件名不含扩展名的部分  
+        // Get the part of the filename without the extension  
         const lastDotIndex = originalFileName.lastIndexOf('.');  
         let nameWithoutExtension: string;  
 
@@ -21,7 +21,7 @@
             nameWithoutExtension = originalFileName;  
         }  
 
-        // 检查文件名长度并生成下载文件名  
+        // Check filename length and generate download filename accordingly  
         if (nameWithoutExtension.length <= 20) {  
             downloadFileName = originalFileName;  
         } else {  
@@ -46,7 +46,7 @@
         </div>  
         <a  
             href={downloadUrl}  
-            download={downloadFileName}  <!-- 绑定下载文件名 -->  
+            download={downloadFileName}  <!-- Bound download filename -->  
             class="inline-block bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg transition-colors"  
         >  
             Download Compressed File  
