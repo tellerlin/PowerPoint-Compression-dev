@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 
@@ -6,8 +6,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
     preprocess: vitePreprocess(),
     kit: {
-        adapter: adapter(),
-        // 可选：如果仍有问题，可以尝试以下配置
+        adapter: adapter(), // 使用 Cloudflare 适配器
         csp: {
             mode: 'auto'
         }
