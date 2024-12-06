@@ -6,7 +6,12 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
     preprocess: vitePreprocess(),
     kit: {
-        adapter: adapter(), // 使用 Cloudflare 适配器
+        adapter: adapter({
+            routes: {
+                include: ['/*'], // 包含所有路由
+                exclude: ['<all>'] // 确保所有路由都被处理
+            }
+        }),
         csp: {
             mode: 'auto'
         }
