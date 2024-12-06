@@ -44,9 +44,10 @@
                 <p class="text-lg font-medium">{formatSize(compressedSize)}</p>  
             </div>  
         </div>  
+        <!-- Download link with dynamically set filename -->  
         <a  
             href={downloadUrl}  
-            download={downloadFileName}  <!-- Bound download filename -->  
+            download={downloadFileName}  
             class="inline-block bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg transition-colors"  
         >  
             Download Compressed File  
