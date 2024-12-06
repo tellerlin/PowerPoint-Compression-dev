@@ -48,5 +48,15 @@
 				<li>Advanced ZIP compression of the final file</li>
 			</ol>
 		</section>
+
+		<div class="mb-8"></div> <!-- 添加的空行 -->
+
+		<section>  
+			<h2 class="text-2xl font-semibold mb-4">Contact Us</h2>  
+			<p>  
+				If you have any questions or need further assistance, please don't hesitate to contact us at <a href="mailto:info@byteslim.com">info@byteslim.com</a>. Our team is here to help!  
+			</p>  
+		</section>   
+
 	</div>
 </div>
