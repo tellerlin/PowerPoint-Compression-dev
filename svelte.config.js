@@ -7,9 +7,10 @@ const config = {
     preprocess: vitePreprocess(),
     kit: {
         adapter: adapter({
+            // 可以添加一些额外的配置
             routes: {
-                include: ['/*'], // 包含所有路由
-                exclude: ['<all>'] // 确保所有路由都被处理
+                include: ['/*'],
+                exclude: ['<all>']
             }
         }),
         csp: {
