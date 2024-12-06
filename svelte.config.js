@@ -6,15 +6,9 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
     preprocess: vitePreprocess(),
     kit: {
-        adapter: adapter({
-            // 可以添加一些额外的配置
-            routes: {
-                include: ['/*'],
-                exclude: ['<all>']
-            }
-        }),
-        csp: {
-            mode: 'auto'
+        adapter: adapter(),
+        paths: {
+            base: ''
         }
     }
 };
