@@ -8,9 +8,12 @@
         return `${(bytes / 1024 / 1024).toFixed(2)} MB`;  
     }  
 
-    let downloadFileName: string;  // To store the download filename  
+    $: downloadFileName = computeDownloadFileName(downloadUrl, originalFileName);  
 
-    if (downloadUrl && originalFileName) {  
+    function computeDownloadFileName(downloadUrl: string, originalFileName: string): string | undefined {  
+        console.log('computeDownloadFileName called with:', downloadUrl, originalFileName);  
+        if (!downloadUrl || !originalFileName) return undefined;  
+
         // Get the part of the filename without the extension  
         const lastDotIndex = originalFileName.lastIndexOf('.');  
         let nameWithoutExtension: string;  
@@ -21,14 +24,20 @@
             nameWithoutExtension = originalFileName;  
         }  
 
-        // Check filename length and generate download filename accordingly  
+        let fileNamePart: string;  
         if (nameWithoutExtension.length <= 20) {  
-            downloadFileName = originalFileName;  
+            // Insert _zip before the extension  
+            const extension = originalFileName.substring(lastDotIndex);  
+            fileNamePart = `${nameWithoutExtension}_zip${extension}`;  
         } else {  
+            // Truncate to 20 characters and add _zip.pptx  
             const truncatedName = nameWithoutExtension.substring(0, 20);  
-            downloadFileName = `${truncatedName}-zip.pptx`;  
+            fileNamePart = `${truncatedName}_zip.pptx`;  
         }  
-    }  
+
+        return fileNamePart;  
+    }
+
 </script>  
 
 {#if downloadUrl}  
@@ -46,10 +55,11 @@
         </div>  
         <a  
             href={downloadUrl}  
-            download={downloadFileName}  <!-- Bound download filename -->  
+            download={downloadFileName}  
             class="inline-block bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg transition-colors"  
         >  
             Download Compressed File  
         </a>  
+        <p>Download Filename: {downloadFileName}</p>  <!-- 调试输出 -->  
     </div>  
 {/if}

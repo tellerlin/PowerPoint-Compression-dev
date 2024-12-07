@@ -73,9 +73,9 @@
                     originalSize={$compressionResult.originalSize}  
                     compressedSize={$compressionResult.compressedSize}  
                     downloadUrl={$compressionResult.downloadUrl}  
-                    originalFileName={originalFileName} <!-- 传递原始文件名 -->  
+                    originalFileName={originalFileName}
                 />  
             {/if}  
         </div>  
     </div>  
-</div>
+</div>  
