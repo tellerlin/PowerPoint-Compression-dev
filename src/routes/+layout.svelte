@@ -52,7 +52,6 @@
 
 
     <!-- Preload critical resources -->
-    <link rel="preload" href="/main-script.js" as="script">
 
 
     <!-- Favicon and other critical head elements -->
