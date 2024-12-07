@@ -31,5 +31,8 @@
     "type": "module",
     "dependencies": {
         "jszip": "^3.10.1"
-    }
+    },
+    "overrides": {  
+        "picomatch": "4.0.2"  
+    }  
 }
