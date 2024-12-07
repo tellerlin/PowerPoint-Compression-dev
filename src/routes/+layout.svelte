@@ -52,7 +52,6 @@
 
 
     <!-- Preload critical resources -->
-    <link rel="preload" href="/critical-styles.css" as="style">
     <link rel="preload" href="/main-script.js" as="script">
 
 
