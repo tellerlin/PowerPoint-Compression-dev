@@ -49,6 +49,5 @@
         >  
             Download Compressed File  
         </a>  
-        <p>Download Filename: {downloadFileName}</p> <!-- 调试输出 -->  
     </div>  
 {/if}
