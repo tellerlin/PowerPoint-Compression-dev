@@ -2,7 +2,7 @@
     export let originalSize = 0;  
     export let compressedSize = 0;  
     export let downloadUrl = '';  
-    export let originalFileName = '';  // Receive original filename as a prop  
+    export let originalFileName = '';  
 
     function formatSize(bytes: number): string {  
         return `${(bytes / 1024 / 1024).toFixed(2)} MB`;  
@@ -11,33 +11,22 @@
     $: downloadFileName = computeDownloadFileName(downloadUrl, originalFileName);  
 
     function computeDownloadFileName(downloadUrl: string, originalFileName: string): string | undefined {  
-        console.log('computeDownloadFileName called with:', downloadUrl, originalFileName);  
         if (!downloadUrl || !originalFileName) return undefined;  
 
-        // Get the part of the filename without the extension  
         const lastDotIndex = originalFileName.lastIndexOf('.');  
-        let nameWithoutExtension: string;  
-
-        if (lastDotIndex !== -1) {  
-            nameWithoutExtension = originalFileName.substring(0, lastDotIndex);  
-        } else {  
-            nameWithoutExtension = originalFileName;  
-        }  
+        const nameWithoutExtension = lastDotIndex !== -1 ? originalFileName.substring(0, lastDotIndex) : originalFileName;  
 
         let fileNamePart: string;  
         if (nameWithoutExtension.length <= 20) {  
-            // Insert _zip before the extension  
-            const extension = originalFileName.substring(lastDotIndex);  
+            const extension = lastDotIndex !== -1 ? originalFileName.substring(lastDotIndex) : '.pptx';  
             fileNamePart = `${nameWithoutExtension}_zip${extension}`;  
         } else {  
-            // Truncate to 20 characters and add _zip.pptx  
             const truncatedName = nameWithoutExtension.substring(0, 20);  
             fileNamePart = `${truncatedName}_zip.pptx`;  
         }  
 
         return fileNamePart;  
-    }
-
+    }  
 </script>  
 
 {#if downloadUrl}  
@@ -60,6 +49,6 @@
         >  
             Download Compressed File  
         </a>  
-        <p>Download Filename: {downloadFileName}</p>  <!-- 调试输出 -->  
+        <p>Download Filename: {downloadFileName}</p> <!-- 调试输出 -->  
     </div>  
 {/if}

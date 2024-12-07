@@ -1,17 +1,12 @@
-import JSZip from 'jszip';  
-import { browser } from '$app/environment';  
+import JSZip from 'jszip';
+import { browser } from '$app/environment';
 
 
 async function compressPNGWithTransparency(data) {
     try {
-        // 使用 canvas 检查是否有透明通道
         const img = new Image();
         img.src = URL.createObjectURL(new Blob([new Uint8Array(data)]));
-
-
-        await new Promise(resolve => {
-            img.onload = resolve;
-        });
+        await new Promise(resolve => img.onload = resolve);
 
 
         const canvas = document.createElement('canvas');
@@ -21,332 +16,174 @@ async function compressPNGWithTransparency(data) {
         ctx.drawImage(img, 0, 0);
 
 
-        const imageData = ctx.getImageData(0, 0, img.width, img.height);
-        const hasAlpha = imageData.data.some((value, index) => 
-            index % 4 === 3 && value < 255
-        );
+        const hasAlpha = ctx.getImageData(0, 0, img.width, img.height).data.some((v, i) => i % 4 === 3 && v < 255);
 
 
-        // 如果有透明通道，使用特殊压缩方法
         if (hasAlpha) {
-            // 限制最大尺寸
-            let newWidth = img.width;
-            let newHeight = img.height;
-
-
-            if (newWidth > 1920) {
-                newWidth = 1920;
-                newHeight = Math.round((img.height * 1920) / img.width);
-            }
-
-
-            if (newHeight > 1200) {
-                newHeight = 1200;
-                newWidth = Math.round((img.width * 1200) / img.height);
-            }
-
-
+            const [newWidth, newHeight] = calculateScaledDimensions(img.width, img.height);
             canvas.width = newWidth;
             canvas.height = newHeight;
             ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
 
-            // 使用 canvas 导出带透明度的 WebP
             return new Promise((resolve, reject) => {
-                canvas.toBlob((blob) => {
-                    if (blob) {
-                        blob.arrayBuffer().then(buffer => {
-                            resolve(new Uint8Array(buffer));
-                        });
-                    } else {
-                        reject(new Error('PNG compression failed'));
-                    }
+                canvas.toBlob(blob => {
+                    blob?.arrayBuffer().then(buffer => resolve(new Uint8Array(buffer)))
+                        .catch(reject);
                 }, 'image/webp', 0.8);
             });
         }
 
 
-        // 如果没有透明通道，使用普通压缩
         return await safeCompressImage(data, 'image.png');
     } catch (error) {
-        console.warn('PNG compression failed, returning original data', error);
+        console.warn('PNG compression failed', error);
         return data;
     }
 }
 
 
-export async function compressPPTX(file, onProgress) {  
-    if (!browser) {  
-        throw new Error('PPTX compression is only supported in browser environment');  
-    }  
+function calculateScaledDimensions(width, height) {
+    let newWidth = width;
+    let newHeight = height;
 
 
-    if (!file.name.toLowerCase().endsWith('.pptx')) {  
-        throw new Error('Only .pptx files are supported');  
-    }  
+    if (newWidth > 1366) {
+        newWidth = 1366;
+        newHeight = Math.round((height * 1366) / width);
+    }
 
 
-    const zip = new JSZip();  
+    if (newHeight > 768) {
+        newHeight = 768;
+        newWidth = Math.round((width * 768) / height);
+    }
 
 
-    try {  
-        const content = await file.arrayBuffer();  
-        const pptx = await zip.loadAsync(content);  
-
-
-        await cleanUnusedLayoutMedia(pptx);  
-
-
-        const images = Object.keys(pptx.files).filter(name => /\.(png|jpg|jpeg|gif)$/i.test(name));  
-
-
-        let processed = 0;  
-
-
-        for (const image of images) {  
-            try {  
-                const imgData = await pptx.file(image).async('arraybuffer');  
-                
-                // 针对 PNG 文件使用特殊压缩方法
-                let processedImg = imgData;
-                if (image.toLowerCase().endsWith('.png')) {
-                    processedImg = await compressPNGWithTransparency(imgData);
-                } else {
-                    processedImg = await safeCompressImage(imgData, image);
-                }
-
-
-                // Choose the smallest image among original and compressed versions  
-                const originalSize = imgData.byteLength;  
-                let bestImage = imgData;  
-                let bestSize = originalSize;  
-
-
-                if (processedImg && processedImg.byteLength < bestSize) {  
-                    bestImage = processedImg;  
-                    bestSize = processedImg.byteLength;  
-                }  
-
-
-                // If compressed image is smaller, replace the original image  
-                if (bestImage !== imgData) {  
-                    pptx.file(image, bestImage);  
-                }  
-
-
-                processed++;  
-                onProgress(Math.round((processed / images.length) * 100));  
-            } catch (error) {  
-                console.error(`Error processing ${image}:`, error);  
-                // In case of error, keep the original image  
-                pptx.file(image, imgData);  
-            }  
-        }  
-
-
-        return await pptx.generateAsync({  
-            type: 'blob',  
-            compression: 'DEFLATE',  
-            compressionOptions: { level: 9 }  
-        });  
-    } catch (error) {  
-        console.error('PPTX compression error:', error);  
-        throw error;  
-    }  
+    return [newWidth, newHeight];
 }
 
-async function safeCompressImage(data, imagePath) {  
-    if (  
-        typeof createImageBitmap === 'undefined' ||  
-        typeof document === 'undefined' ||  
-        typeof document.createElement !== 'function'  
-    ) {  
-        return data;  
-    }  
 
-    try {  
-        const blob = new Blob([data]);  
-        const imageBitmap = await createImageBitmap(blob);  
-        const canvas = document.createElement('canvas');  
-        const ctx = canvas.getContext('2d');  
+export async function compressPPTX(file, onProgress) {
+    if (!browser) throw new Error('PPTX compression is only supported in browser environment');
+    if (!file.name.toLowerCase().endsWith('.pptx')) throw new Error('Only .pptx files are supported');
 
-        if (!ctx) {  
-            console.warn('Could not get canvas context');  
-            return data;  
-        }  
 
-        const originalWidth = imageBitmap.width;  
-        const originalHeight = imageBitmap.height;  
+    const zip = new JSZip();
+    const content = await file.arrayBuffer();
+    const pptx = await zip.loadAsync(content);
 
-        // Determine the new dimensions while maintaining aspect ratio  
-        let newWidth = originalWidth;  
-        let newHeight = originalHeight;  
 
-        if (originalWidth > 1920) {  
-            newWidth = 1920;  
-            newHeight = (originalHeight * newWidth) / originalWidth;  
-        }  
+    await cleanUnusedLayoutMedia(pptx);
 
-        if (newHeight > 1200) {  
-            newHeight = 1200;  
-            newWidth = (originalWidth * newHeight) / originalHeight;  
-        }  
 
-        canvas.width = newWidth;  
-        canvas.height = newHeight;  
-        ctx.drawImage(imageBitmap, 0, 0, newWidth, newHeight);  
+    const images = Object.keys(pptx.files).filter(name => /\.(png|jpg|jpeg|gif)$/i.test(name));
+    let processed = 0;
 
-        // Determine the format based on the original file extension  
-        const extension = imagePath.substring(imagePath.lastIndexOf('.') + 1).toLowerCase();  
-        const isPngWithTransparency = extension === 'png' && await hasTransparency(data);  
 
-        // Compress to WebP and JPEG  
-        const webpPromise = new Promise((resolve, reject) => {  
-            canvas.toBlob((blob) => {  
-                if (blob) resolve(blob);  
-                else reject(new Error('WebP Blob creation failed'));  
-            }, 'image/webp', 0.7);  
-        });  
+    for (const image of images) {
+        try {
+            const imgData = await pptx.file(image).async('arraybuffer');
+            const processedImg = await (image.toLowerCase().endsWith('.png') 
+                ? compressPNGWithTransparency(imgData) 
+                : safeCompressImage(imgData, image));
 
-        const jpegPromise = new Promise((resolve, reject) => {  
-            canvas.toBlob((blob) => {  
-                if (blob) resolve(blob);  
-                else reject(new Error('JPEG Blob creation failed'));  
-            }, 'image/jpeg', 0.7);  
-        });  
 
-        // Wait for both promises  
-        const [webpBlob, jpegBlob] = await Promise.all([webpPromise, jpegPromise]);  
+            const bestImage = processedImg?.byteLength < imgData.byteLength ? processedImg : imgData;
+            pptx.file(image, bestImage);
 
-        // Compare sizes and choose the smallest one  
-        const webpSize = webpBlob ? webpBlob.arrayBuffer().then(buffer => buffer.byteLength) : Promise.resolve(Number.MAX_VALUE);  
-        const jpegSize = jpegBlob ? jpegBlob.arrayBuffer().then(buffer => buffer.byteLength) : Promise.resolve(Number.MAX_VALUE);  
 
-        const [webpByteLength, jpegByteLength] = await Promise.all([webpSize, jpegSize]);  
+            onProgress(Math.round((++processed / images.length) * 100));
+        } catch (error) {
+            console.error(`Error processing ${image}:`, error);
+        }
+    }
 
-        let bestBlob;  
-        if (webpByteLength <= jpegByteLength) {  
-            bestBlob = webpBlob;  
-        } else {  
-            bestBlob = jpegBlob;  
-        }  
 
-        return new Uint8Array(await bestBlob.arrayBuffer());  
-    } catch (error) {  
-        console.warn('Image compression failed, returning original data', error);  
-        return data;  
-    }  
-}  
+    return await pptx.generateAsync({
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 9 }
+    });
+}
 
-async function hasTransparency(imageData) {  
-    const img = new Image();  
-    img.src = URL.createObjectURL(new Blob([new Uint8Array(imageData)]));  
 
-    return new Promise((resolve) => {  
-        img.onload = () => {  
-            const canvas = document.createElement('canvas');  
-            const ctx = canvas.getContext('2d');  
-            canvas.width = img.width;  
-            canvas.height = img.height;  
-            ctx.drawImage(img, 0, 0);  
+async function safeCompressImage(data, imagePath) {
+    if (!createImageBitmap || !document?.createElement) return data;
 
-            const pixels = ctx.getImageData(0, 0, img.width, img.height).data;  
-            for (let i = 3; i < pixels.length; i += 4) {  
-                if (pixels[i] < 255) {  
-                    resolve(true);  
-                    return;  
-                }  
-            }  
-            resolve(false);  
-        };  
-    });  
-}  
+
+    try {
+        const blob = new Blob([data]);
+        const imageBitmap = await createImageBitmap(blob);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return data;
+
+
+        const [newWidth, newHeight] = calculateScaledDimensions(imageBitmap.width, imageBitmap.height);
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        ctx.drawImage(imageBitmap, 0, 0, newWidth, newHeight);
+
+
+        const [webpBlob, jpegBlob] = await Promise.all([
+            blobFromCanvas(canvas, 'image/webp', 0.7),
+            blobFromCanvas(canvas, 'image/jpeg', 0.7)
+        ]);
+
+
+        const [webpSize, jpegSize] = await Promise.all([
+            webpBlob.arrayBuffer().then(b => b.byteLength),
+            jpegBlob.arrayBuffer().then(b => b.byteLength)
+        ]);
+
+
+        const bestBlob = webpSize <= jpegSize ? webpBlob : jpegBlob;
+        return new Uint8Array(await bestBlob.arrayBuffer());
+    } catch (error) {
+        console.warn('Image compression failed', error);
+        return data;
+    }
+}
+
+
+async function blobFromCanvas(canvas, type, quality) {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Blob creation failed')), type, quality);
+    });
+}
+
 
 async function cleanUnusedLayoutMedia(pptx) {
-    // 收集所有已使用的媒体文件路径
     const usedMediaFiles = new Set();
+    const mediaTraversalTasks = [
+        { path: 'ppt/slides/_rels/', match: /\.rels$/ },
+        { path: 'ppt/slideLayouts/_rels/', match: /\.rels$/ },
+        { path: 'ppt/slideMasters/_rels/', match: /\.rels$/ }
+    ];
 
 
-    // 第一步：遍历所有幻灯片的关系文件，找出使用的 layout 和相关媒体
-    const slideRelsFiles = Object.keys(pptx.files).filter(
-        name => name.startsWith('ppt/slides/_rels/') && name.endsWith('.rels')
-    );
+    for (const task of mediaTraversalTasks) {
+        const relsFiles = Object.keys(pptx.files)
+            .filter(name => name.startsWith(task.path) && task.match.test(name));
 
 
-    for (const relsFile of slideRelsFiles) {
-        const relsContent = await pptx.file(relsFile).async('string');
-        
-        // 直接收集 slide 关联的媒体文件
-        const slideMediaMatches = relsContent.match(/Target="\.\.\/media\/([^"]+)"/g) || [];
-        slideMediaMatches.forEach(match => {
-            const mediaPath = match.match(/Target="\.\.\/media\/([^"]+)"/)[1];
-            usedMediaFiles.add(`ppt/media/${mediaPath}`);
-        });
-        
-        // 找出使用的 layout
-        const layoutMatch = relsContent.match(/Target="\.\.\/slideLayouts\/([^"]+)"/);
-        if (layoutMatch) {
-            const layoutName = layoutMatch[1];
-            const layoutRelsPath = `ppt/slideLayouts/_rels/${layoutName}.rels`;
-
-
-            // 如果布局关系文件存在
-            if (pptx.files[layoutRelsPath]) {
-                const layoutRelsContent = await pptx.file(layoutRelsPath).async('string');
-                
-                // 找出布局关系文件中的媒体文件
-                const layoutMediaMatches = layoutRelsContent.match(/Target="\.\.\/media\/([^"]+)"/g) || [];
-                layoutMediaMatches.forEach(match => {
-                    const mediaPath = match.match(/Target="\.\.\/media\/([^"]+)"/)[1];
-                    usedMediaFiles.add(`ppt/media/${mediaPath}`);
-                });
-
-
-                // 找出关联的 slideMaster
-                const masterMatch = layoutRelsContent.match(/Target="\.\.\/slideMasters\/([^"]+)"/);
-                if (masterMatch) {
-                    const masterRelsPath = `ppt/slideMasters/_rels/${masterMatch[1]}.rels`;
-                    
-                    if (pptx.files[masterRelsPath]) {
-                        const masterRelsContent = await pptx.file(masterRelsPath).async('string');
-                        
-                        // 找出 slideMaster 中的媒体文件
-                        const masterMediaMatches = masterRelsContent.match(/Target="\.\.\/media\/([^"]+)"/g) || [];
-                        masterMediaMatches.forEach(match => {
-                            const mediaPath = match.match(/Target="\.\.\/media\/([^"]+)"/)[1];
-                            usedMediaFiles.add(`ppt/media/${mediaPath}`);
-                        });
-                    }
-                }
-            }
+        for (const relsFile of relsFiles) {
+            const relsContent = await pptx.file(relsFile).async('string');
+            const mediaMatches = relsContent.match(/Target="\.\.\/media\/([^"]+)"/g) || [];
+            mediaMatches.forEach(match => {
+                const mediaPath = match.match(/Target="\.\.\/media\/([^"]+)"/)[1];
+                usedMediaFiles.add(`ppt/media/${mediaPath}`);
+            });
         }
     }
 
 
-    // 第二步：删除未使用且大于50KB的媒体文件
-    const mediaToClear = [];
-    const mediaFiles = Object.keys(pptx.files).filter(
-        name => name.startsWith('ppt/media/') && /\.(png|jpg|jpeg|gif|bmp|svg)$/i.test(name)
-    );
+    const mediaToClear = Object.keys(pptx.files)
+        .filter(name => name.startsWith('ppt/media/') && /\.(png|jpg|jpeg|gif|bmp|svg)$/i.test(name))
+        .filter(mediaPath => !usedMediaFiles.has(mediaPath));
 
 
-    for (const mediaPath of mediaFiles) {
-        if (!usedMediaFiles.has(mediaPath)) {
-            const mediaFile = pptx.files[mediaPath];
-            const mediaBuffer = await mediaFile.async('arraybuffer');
-            
-            if (mediaBuffer.byteLength > 50 * 1024) {
-                mediaToClear.push(mediaPath);
-            }
-        }
-    }
-
-
-    // 删除找到的媒体文件
-    mediaToClear.forEach(mediaPath => {
-        delete pptx.files[mediaPath];
-    });
-
-
+    mediaToClear.forEach(mediaPath => delete pptx.files[mediaPath]);
     console.log('Cleared media files:', mediaToClear);
 }

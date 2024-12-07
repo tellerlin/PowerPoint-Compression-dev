@@ -9,34 +9,30 @@
     
     let isDragging = false;
     
-    function handleDragOver(e: DragEvent) {
+    const handleDragOver = (e: DragEvent) => {
         e.preventDefault();
         isDragging = true;
-    }
+    };
     
-    function handleDragLeave() {
-        isDragging = false;
-    }
+    const handleDragLeave = () => isDragging = false;
     
-    function handleDrop(e: DragEvent) {
+    const handleDrop = (e: DragEvent) => {
         e.preventDefault();
         isDragging = false;
-        const files = e.dataTransfer?.files;
-        if (files?.length) handleFile(files[0]);
-    }
+        const file = e.dataTransfer?.files?.[0];
+        file && handleFile(file);
+    };
     
-    function handleFileInput(e: Event) {
-        const input = e.target as HTMLInputElement;
-        if (input.files?.length) handleFile(input.files[0]);
-    }
+    const handleFileInput = (e: Event) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        file && handleFile(file);
+    };
     
-    function handleFile(file: File) {
-        if (!file.name.toLowerCase().endsWith('.pptx')) {
-            alert('Please upload a PowerPoint (.pptx) file');
-            return;
-        }
-        dispatch('fileSelected', { file });
-    }
+    const handleFile = (file: File) => {
+        file.name.toLowerCase().endsWith('.pptx') 
+            ? dispatch('fileSelected', { file })
+            : alert('Please upload a PowerPoint (.pptx) file');
+    };
 </script>
 
 

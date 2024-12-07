@@ -1,62 +1,75 @@
 <script>
-	import { page } from '$app/stores';
+    import { page } from '$app/stores';
 </script>
 
-<div class="max-w-4xl mx-auto px-4 py-12">
-	<h1 class="text-4xl font-bold mb-8 text-center">About Our PPTX Compression Tool</h1>
 
-	<div class="prose dark:prose-invert mx-auto">
-		<section class="mb-8">
-			<h2 class="text-2xl font-semibold mb-4">Professional Compression Technology</h2>
-			<p>
-				Our PowerPoint compression tool utilizes advanced algorithms and modern web technologies to
-				efficiently reduce the size of your presentations while maintaining visual quality. We employ
-				intelligent image optimization techniques that analyze and compress each element individually.
-			</p>
-		</section>
 
-		<section class="mb-8">
-			<h2 class="text-2xl font-semibold mb-4">Privacy First Approach</h2>
-			<p>
-				Your privacy and data security are our top priorities. All compression processing happens
-				directly in your browser - no files are ever uploaded to external servers. Once you close the
-				page, all processed files are automatically removed from your browser's memory, ensuring
-				complete privacy.
-			</p>
-		</section>
 
-		<section class="mb-8">
-			<h2 class="text-2xl font-semibold mb-4">Advanced Features</h2>
-			<ul class="list-disc pl-6 space-y-2">
-				<li>Smart image compression with quality preservation</li>
-				<li>Automatic removal of unused elements</li>
-				<li>Optimization of embedded media</li>
-				<li>Preservation of animations and transitions</li>
-				<li>Support for complex PowerPoint features</li>
-			</ul>
-		</section>
+<div class="max-w-6xl mx-auto px-6 py-8 bg-white dark:bg-gray-900">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+            About Our PPTX Compression Tool
+        </h1>
+    </div>
 
-		<section>
-			<h2 class="text-2xl font-semibold mb-4">How It Works</h2>
-			<p>
-				Our tool uses a sophisticated multi-step compression process:
-			</p>
-			<ol class="list-decimal pl-6 space-y-2">
-				<li>Analysis of presentation structure and content</li>
-				<li>Intelligent image optimization with quality preservation</li>
-				<li>Removal of redundant metadata and unused elements</li>
-				<li>Advanced ZIP compression of the final file</li>
-			</ol>
-		</section>
 
-		<div class="mb-8"></div> <!-- 添加的空行 -->
 
-		<section>  
-			<h2 class="text-2xl font-semibold mb-4">Contact Us</h2>  
-			<p>  
-				If you have any questions or need further assistance, please don't hesitate to contact us at <a href="mailto:info@byteslim.com">info@byteslim.com</a>. Our team is here to help!  
-			</p>  
-		</section>   
 
-	</div>
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold mb-3 text-blue-600 dark:text-blue-400">
+                Professional Compression Technology
+            </h2>
+            <p class="text-gray-700 dark:text-gray-300 text-sm">
+                Utilizing advanced algorithms to efficiently reduce presentation file size while maintaining visual quality.
+            </p>
+        </div>
+        
+        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold mb-3 text-green-600 dark:text-green-400">
+                Privacy First Approach
+            </h2>
+            <p class="text-gray-700 dark:text-gray-300 text-sm">
+                We prioritize your data security. All processed files are automatically deleted upon page closure.
+            </p>
+        </div>
+    </div>
+
+
+
+
+    <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl text-center mb-8">
+        <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
+            Contact Us
+        </h2>
+        <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-sm">
+            <a href="mailto:info@byteslim.com" class="text-blue-600 hover:underline">info@byteslim.com</a>
+        </p>
+    </div>
+
+
+    <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl text-center">
+        <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
+            Support Us
+        </h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-4 max-w-2xl mx-auto text-sm overflow-wrap-break-word">
+            Keeping this ad-free tool running takes significant effort. If you find it valuable, consider buying me a coffee.
+        </p>
+        <div class="flex justify-center space-x-24">
+            <div id="buy-me-a-coffee-qr" class="w-32 h-32">
+                <img 
+                    src="/bmc_qr.png" 
+                    alt="Buy Me a Coffee Donation QR Code" 
+                    class="w-full h-full object-contain rounded-lg"
+                />
+            </div>
+            <div id="alipay-qr" class="w-32 h-40">
+                <img 
+                    src="/alipay_qr.png" 
+                    alt="Alipay Donation QR Code" 
+                    class="w-full h-full object-contain rounded-lg"
+                />
+            </div>
+        </div>
+    </div>
 </div>
