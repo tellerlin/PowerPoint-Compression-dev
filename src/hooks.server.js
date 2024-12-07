@@ -48,12 +48,15 @@ export async function handle({ event, resolve }) {
       response.headers.set('X-Content-Type-Options', 'nosniff');
       response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
       response.headers.set('Content-Security-Policy', 
-        "default-src 'self'; " +
+        "default-src 'self' https:; " +
         "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
         "style-src 'self' 'unsafe-inline'; " +
-        "img-src 'self' data: https:; " +
-        "connect-src 'self';"
-      );
+        "img-src 'self' data: blob: https:; " +
+        "connect-src 'self' blob:; " +
+        "media-src 'self' blob: https:; " +
+        "frame-src 'self'; " +
+        "font-src 'self' https: data:"
+    );
     }
 
 

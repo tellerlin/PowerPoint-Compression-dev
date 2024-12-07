@@ -29,10 +29,14 @@
     };
     
     const handleFile = (file: File) => {
-        file.name.toLowerCase().endsWith('.pptx') 
-            ? dispatch('fileSelected', { file })
-            : alert('Please upload a PowerPoint (.pptx) file');
-    };
+    if (file.name.toLowerCase().endsWith('.pptx')) {
+        const blobUrl = URL.createObjectURL(file);
+        dispatch('fileSelected', { file, blobUrl });
+    } else {
+        alert('Please upload a PowerPoint (.pptx) file');
+    }
+};
+
 </script>
 
 
