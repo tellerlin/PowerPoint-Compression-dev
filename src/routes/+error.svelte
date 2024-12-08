@@ -5,7 +5,7 @@
 
 
 <svelte:head>
-    <title>Page Not Found - ByteSlim</title>
+    <title>{$page.status || 404} - Page Not Found</title>
 </svelte:head>
 
 

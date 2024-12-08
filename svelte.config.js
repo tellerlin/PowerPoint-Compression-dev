@@ -2,6 +2,8 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 import adapter from '@sveltejs/adapter-cloudflare';
 
 
+
+
 /** @type {import('@sveltejs/kit').Config} */
 export default {
   preprocess: vitePreprocess(),
@@ -22,8 +24,11 @@ export default {
     prerender: {
       handleHttpError: 'warn', // 处理预渲染错误
       entries: [
+        '*',        // 预渲染所有页面
         '/about',
-        '/privacy'
+        '/privacy', 
+        '/404',     // 明确指定预渲染 404 页面
+        '/contact'  // 可选：预渲染其他重要页面
       ]
     }
   }
