@@ -21,11 +21,12 @@ export default {
     },
     prerender: {
       entries: [
-        '/sitemap.xml',
         '/',
         '/about',
-        '/privacy',
-        '/contact'
+        '/privacy', 
+        '/contact',
+        '/404',
+        '/sitemap.xml'
       ],
       handleHttpError: 'warn'
     }
