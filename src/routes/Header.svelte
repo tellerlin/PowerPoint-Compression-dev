@@ -3,22 +3,16 @@
     import logo from '$lib/images/byteslim-logo.svg';
 
 
-
-
     const navItems = [
         { href: '/', label: 'Home' },
         { href: '/about', label: 'About' }
     ];
 
 
-
-
     function getAriaCurrent(path) {
         return $page.url.pathname === path ? 'page' : undefined;
     }
 </script>
-
-
 
 
 <svelte:head>
@@ -29,8 +23,6 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
     <link rel="icon" href="/favicon.ico?v=2">
 </svelte:head>
-
-
 
 
 <header>
@@ -47,14 +39,10 @@
     </div>
 
 
-
-
     <nav aria-label="Main Navigation">
         <svg viewBox="0 0 2 3" aria-hidden="true">
             <path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z" />
         </svg>
-
-
 
 
         <ul>
@@ -66,15 +54,11 @@
         </ul>
 
 
-
-
         <svg viewBox="0 0 2 3" aria-hidden="true">
             <path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z" />
         </svg>
     </nav>
 </header>
-
-
 
 
 <style>
@@ -88,14 +72,13 @@
     }
 
 
-
-
     .corner {
         width: 3em;
         height: 3em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-
-
 
 
     .corner a {
@@ -107,8 +90,6 @@
     }
 
 
-
-
     .corner img {
         width: 2em;
         height: 2em;
@@ -117,13 +98,9 @@
     }
 
 
-
-
     .corner img:hover {
         transform: scale(1.1);
     }
-
-
 
 
     nav {
@@ -134,8 +111,6 @@
     }
 
 
-
-
     svg {
         width: 2em;
         height: 3em;
@@ -143,13 +118,9 @@
     }
 
 
-
-
     path {
         fill: var(--background);
     }
-
-
 
 
     ul {
@@ -166,14 +137,10 @@
     }
 
 
-
-
     li {
         position: relative;
         height: 100%;
     }
-
-
 
 
     li[aria-current='page']::before {
@@ -187,8 +154,6 @@
         border: var(--size) solid transparent;
         border-top: var(--size) solid var(--color-theme-1);
     }
-
-
 
 
     nav a {
@@ -208,35 +173,44 @@
     }
 
 
-
-
     a:hover {
         color: var(--color-theme-1);
         background-color: rgba(255,255,255,0.1);
     }
 
 
-
-
     @media (max-width: 600px) {
         header {
             flex-direction: column;
             padding: 0.5rem;
+            align-items: stretch; /* 添加这行，使子元素拉伸对齐 */
         }
 
 
+        .corner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: auto; /* 改为自动高度 */
+            padding: 0.5rem 0;
+        }
 
 
         nav {
             width: 100%;
+            align-items: stretch; /* 添加这行，使导航栏拉伸对齐 */
         }
-
-
 
 
         ul {
             width: 100%;
             justify-content: space-around;
+            height: 3em; /* 保持固定高度 */
+        }
+
+
+        svg {
+            height: 100%; /* 使svg高度与导航栏一致 */
         }
     }
 </style>
