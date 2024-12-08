@@ -1,8 +1,7 @@
 export async function getPages() {
     const site = 'https://byteslim.com';
     
-    // 静态页面
-    const staticPages = [
+    return [
         { 
             loc: `${site}/`, 
             priority: '1.0', 
@@ -22,20 +21,11 @@ export async function getPages() {
             loc: `${site}/privacy`, 
             priority: '0.6', 
             changefreq: 'monthly' 
+        },
+        {
+            loc: `${site}/404`,
+            priority: '0.1',
+            changefreq: 'yearly'
         }
     ];
-
-
-    // 如果有动态页面，可以在这里添加
-    const dynamicPages = await getDynamicPages();
-
-
-    return [...staticPages, ...dynamicPages];
-}
-
-
-// 用于获取动态页面的函数（如果需要）
-async function getDynamicPages() {
-    // 这里可以从数据库或其他来源获取动态页面
-    return [];
 }
