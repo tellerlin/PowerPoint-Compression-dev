@@ -23,12 +23,7 @@ export default {
       handleHttpError: 'warn',
       entries: [
         '*',
-        '/about',
-        '/privacy', 
-        '/404',
-        '/contact',
-        '/sitemap', 
-        '/sitemap.xml'
+        '/sitemap.xml'  // 直接指定预渲染 sitemap.xml
       ]
     }
   }
