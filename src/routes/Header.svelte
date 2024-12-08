@@ -3,16 +3,22 @@
     import logo from '$lib/images/byteslim-logo.svg';
 
 
+
+
     const navItems = [
         { href: '/', label: 'Home' },
         { href: '/about', label: 'About' }
     ];
 
 
+
+
     function getAriaCurrent(path) {
         return $page.url.pathname === path ? 'page' : undefined;
     }
 </script>
+
+
 
 
 <svelte:head>
@@ -23,6 +29,8 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
     <link rel="icon" href="/favicon.ico?v=2">
 </svelte:head>
+
+
 
 
 <header>
@@ -39,10 +47,14 @@
     </div>
 
 
+
+
     <nav aria-label="Main Navigation">
         <svg viewBox="0 0 2 3" aria-hidden="true">
             <path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z" />
         </svg>
+
+
 
 
         <ul>
@@ -54,11 +66,15 @@
         </ul>
 
 
+
+
         <svg viewBox="0 0 2 3" aria-hidden="true">
             <path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z" />
         </svg>
     </nav>
 </header>
+
+
 
 
 <style>
@@ -72,10 +88,14 @@
     }
 
 
+
+
     .corner {
         width: 3em;
         height: 3em;
     }
+
+
 
 
     .corner a {
@@ -87,6 +107,8 @@
     }
 
 
+
+
     .corner img {
         width: 2em;
         height: 2em;
@@ -95,17 +117,23 @@
     }
 
 
+
+
     .corner img:hover {
         transform: scale(1.1);
     }
+
+
 
 
     nav {
         display: flex;
         justify-content: center;
         align-items: center;
-        --background: rgba(255, 255, 255, 0.7);
+        --background: rgba(50, 50, 50, 0.9);
     }
+
+
 
 
     svg {
@@ -115,9 +143,13 @@
     }
 
 
+
+
     path {
         fill: var(--background);
     }
+
+
 
 
     ul {
@@ -134,10 +166,14 @@
     }
 
 
+
+
     li {
         position: relative;
         height: 100%;
     }
+
+
 
 
     li[aria-current='page']::before {
@@ -153,12 +189,14 @@
     }
 
 
+
+
     nav a {
         display: flex;
         height: 100%;
         align-items: center;
         padding: 0 0.5rem;
-        color: var(--color-text);
+        color: white;
         font-weight: 700;
         font-size: 0.8rem;
         text-transform: uppercase;
@@ -170,10 +208,14 @@
     }
 
 
+
+
     a:hover {
         color: var(--color-theme-1);
-        background-color: rgba(0,0,0,0.05);
+        background-color: rgba(255,255,255,0.1);
     }
+
+
 
 
     @media (max-width: 600px) {
@@ -183,9 +225,13 @@
         }
 
 
+
+
         nav {
             width: 100%;
         }
+
+
 
 
         ul {
