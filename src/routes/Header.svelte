@@ -178,12 +178,11 @@
         background-color: rgba(255,255,255,0.1);
     }
 
-
     @media (max-width: 600px) {
         header {
             flex-direction: column;
             padding: 0.5rem;
-            align-items: stretch; /* 添加这行，使子元素拉伸对齐 */
+            align-items: center; /* 居中对齐 */
         }
 
 
@@ -191,26 +190,33 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: auto; /* 改为自动高度 */
-            padding: 0.5rem 0;
+            height: 3em; /* 固定高度 */
+            margin-bottom: 0.5rem; /* 添加底部间距 */
         }
 
 
         nav {
             width: 100%;
-            align-items: stretch; /* 添加这行，使导航栏拉伸对齐 */
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            height: 3em; /* 固定高度 */
+        }
+
+
+        svg {
+            height: 3em; /* 明确指定高度 */
+            display: flex;
+            align-items: center;
         }
 
 
         ul {
             width: 100%;
+            height: 3em; /* 固定高度 */
+            display: flex;
+            align-items: center;
             justify-content: space-around;
-            height: 3em; /* 保持固定高度 */
-        }
-
-
-        svg {
-            height: 100%; /* 使svg高度与导航栏一致 */
         }
     }
+
 </style>
