@@ -20,15 +20,15 @@ export default {
       }
     },
     prerender: {
-      handleHttpError: 'warn', // 处理预渲染错误
+      handleHttpError: 'warn',
       entries: [
-        '*',        // 预渲染所有页面
+        '*',
         '/about',
         '/privacy', 
-        '/404',     // 明确指定预渲染 404 页面
-        '/contact', // 可选：预渲染其他重要页面
+        '/404',
+        '/contact',
         '/sitemap', 
-        '/sitemap.xml'  // 添加这两行
+        '/sitemap.xml'
       ]
     }
   }

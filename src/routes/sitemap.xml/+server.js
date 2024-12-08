@@ -15,7 +15,7 @@ export async function GET() {
     ${routes.map(route => `
     <url>
         <loc>https://www.byteslim.com${route}</loc>
-        <lastmod>${new Date().toISOString()}</lastmod>
+        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>`).join('')}
@@ -24,7 +24,8 @@ export async function GET() {
 
     return new Response(sitemap, {
         headers: {
-            'Content-Type': 'application/xml'
+            'Content-Type': 'application/xml',
+            'Cache-Control': 'max-age=0, s-maxage=3600'
         }
     });
 }
