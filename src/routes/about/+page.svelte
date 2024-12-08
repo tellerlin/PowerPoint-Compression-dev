@@ -90,11 +90,12 @@
         <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
             Support Us
         </h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4 max-w-2xl mx-auto text-sm">
+        <p class="text-gray-600 dark:text-gray-300 mb-4 max-w-2xl mx-auto text-sm whitespace-nowrap">
             Keeping this ad-free tool running takes significant effort. If you find it valuable, consider buying me a coffee.
         </p>
-        <div class="flex justify-center space-x-24">
-            <div id="buy-me-a-coffee-qr" class="w-32 h-32">
+
+        <div class="flex justify-center space-x-24 items-start">
+            <div id="buy-me-a-coffee-qr" class="w-32 h-40">
                 <img 
                     src="/bmc_qr.png" 
                     alt="Buy Me a Coffee Donation QR Code" 
@@ -111,9 +112,10 @@
                     class="w-full h-full object-contain rounded-lg"
                     loading="lazy"
                     width="128"
-                    height="160"
+                    height="128"
                 />
             </div>
         </div>
     </div>
+
 </div>

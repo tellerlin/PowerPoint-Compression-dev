@@ -25,7 +25,6 @@ const config = {
         '/about',
         '/privacy', 
         '/contact',
-        '/404',
         '/sitemap.xml',
         '/sitemap'
       ],
