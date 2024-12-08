@@ -1,33 +1,37 @@
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
-import adapter from '@sveltejs/adapter-cloudflare';
+export const prerender = true;
 
 
-/** @type {import('@sveltejs/kit').Config} */
-export default {
-  preprocess: vitePreprocess(),
-  kit: {
-    adapter: adapter(),
-    csp: {
-      directives: {
-        'default-src': ['self', 'https:'],
-        'script-src': ['self', 'unsafe-inline', 'unsafe-eval'],
-        'style-src': ['self', 'unsafe-inline'],
-        'img-src': ['self', 'data:', 'blob:', 'https:'],
-        'connect-src': ['self', 'blob:'],
-        'media-src': ['self', 'blob:', 'https:'],
-        'frame-src': ['self'],
-        'font-src': ['self', 'https:', 'data:']
-      }
-    },
-    prerender: {
-      entries: [
-        '/',
-        '/about',
-        '/privacy', 
-        '/contact',
-        '/sitemap.xml'
-      ],
-      handleHttpError: 'warn'
-    }
-  }
-};
+const site = 'https://www.byteslim.com';
+
+
+const pages = [
+    { path: '/', priority: '1.0', changefreq: 'daily' },
+    { path: '/about', priority: '0.8', changefreq: 'weekly' },
+    { path: '/privacy', priority: '0.6', changefreq: 'monthly' },
+    { path: '/contact', priority: '0.7', changefreq: 'weekly' }
+];
+
+
+export async function GET() {
+    const urlset = pages.map(page => `
+    <url>
+        <loc>${site}${page.path === '/' ? '' : page.path}</loc>
+        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+        <changefreq>${page.changefreq}</changefreq>
+        <priority>${page.priority}</priority>
+    </url>`).join('');
+
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${urlset}
+</urlset>`;
+
+
+    return new Response(sitemap, {
+        headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Cache-Control': 'max-age=0, s-maxage=3600'
+        }
+    });
+}

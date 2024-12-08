@@ -1,5 +1,4 @@
 export const prerender = true;
-export const trailingSlash = 'always';
 
 
 const site = 'https://www.byteslim.com';
