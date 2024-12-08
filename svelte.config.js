@@ -20,11 +20,14 @@ export default {
       }
     },
     prerender: {
-      handleHttpError: 'warn',
       entries: [
-        '*',
-        '/sitemap.xml'  // 直接指定预渲染 sitemap.xml
-      ]
+        '/sitemap.xml',
+        '/',
+        '/about',
+        '/privacy',
+        '/contact'
+      ],
+      handleHttpError: 'warn'
     }
   }
 };
