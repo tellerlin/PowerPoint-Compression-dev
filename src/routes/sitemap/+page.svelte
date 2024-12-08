@@ -1,10 +1,5 @@
 <script>
-    const sitemapLinks = [
-        { name: 'Home', url: '/' },
-        { name: 'About', url: '/about' },
-        { name: 'Privacy', url: '/privacy' },
-        { name: 'Contact', url: '/contact' }
-    ];
+    export let data;
 </script>
 
 
@@ -18,7 +13,7 @@
     <h1 class="text-3xl font-bold mb-6">Site Map</h1>
     
     <div class="grid md:grid-cols-2 gap-4">
-        {#each sitemapLinks as link}
+        {#each data.sitemapLinks as link}
             <a 
                 href={link.url} 
                 class="block p-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition 
