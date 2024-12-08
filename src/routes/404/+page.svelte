@@ -6,7 +6,7 @@
     let showAnimation = false;
 
 
-    // 在组件挂载后延迟显示动画
+    // Delay animation on component mount
     import { onMount } from 'svelte';
     onMount(() => {
         setTimeout(() => {
@@ -17,8 +17,8 @@
 
 
 <svelte:head>
-    <title>404 - Page Not Found</title>
-    <meta name="description" content="Page not found - ByteSlim">
+    <title>404 - Page Not Found | ByteSlim</title>
+    <meta name="description" content="Oops! The page you're looking for cannot be found.">
 </svelte:head>
 
 
@@ -34,18 +34,19 @@
             404
         </h1>
         <p class="text-2xl mb-6 text-gray-800 font-semibold">
-            Oops! Page Not Found
+            Whoops! Page Not Found
         </p>
         <p class="text-gray-600 mb-8 max-w-md mx-auto">
-            The page you're looking for doesn't exist or has been moved. 
-            Please check the URL or return to the homepage.
+            The webpage you are looking for might have been removed, 
+            had its name changed, or is temporarily unavailable. 
+            Please double-check the URL or return to our homepage.
         </p>
         <div class="flex justify-center space-x-4">
             <button 
                 class="btn btn-primary px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600"
                 on:click={() => goto('/')}
             >
-                Back to Home
+                Return to Home
             </button>
             <button 
                 class="btn btn-secondary px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 bg-gray-500 text-white hover:bg-gray-600"

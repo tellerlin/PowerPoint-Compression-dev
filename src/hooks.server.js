@@ -19,7 +19,9 @@ function generateSitemap(routes) {
 // Define your routes
 const sitemapRoutes = [
   { url: '/', priority: '1.0', changefreq: 'daily' },
-  { url: '/about', priority: '0.8', changefreq: 'weekly' }
+  { url: '/about', priority: '0.8', changefreq: 'weekly' },
+  { url: '/contact', priority: '0.7', changefreq: 'weekly' },
+  { url: '/privacy', priority: '0.6', changefreq: 'monthly' }
 ];
 
 
@@ -47,16 +49,18 @@ export async function handle({ event, resolve }) {
       response.headers.set('X-Frame-Options', 'DENY');
       response.headers.set('X-Content-Type-Options', 'nosniff');
       response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+      
+      // 更宽松的 CSP，允许更多资源
       response.headers.set('Content-Security-Policy', 
         "default-src 'self' https:; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-        "style-src 'self' 'unsafe-inline'; " +
-        "img-src 'self' data: blob: https:; " +
-        "connect-src 'self' blob:; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://res.wx.qq.com; " +
+        "style-src 'self' 'unsafe-inline' https:; " +
+        "img-src 'self' data: blob: https: http:; " +
+        "connect-src 'self' blob: https:; " +
         "media-src 'self' blob: https:; " +
-        "frame-src 'self'; " +
+        "frame-src 'self' https:; " +
         "font-src 'self' https: data:"
-    );
+      );
     }
 
 
@@ -87,6 +91,7 @@ export function handleError({ error, event }) {
   if (!dev) {
     // Example: Send error to logging service
     // logErrorToService(error);
+    console.error('Unhandled error:', error);
   }
 
 
