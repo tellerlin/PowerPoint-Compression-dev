@@ -24,12 +24,10 @@ const config = {
         '/',
         '/about',
         '/privacy', 
-        '/contact',
-        '/404'  // 添加 404 页面
+        '/contact'
       ],
       handleHttpError: 'warn',
-      handleMissingId: 'warn',
-      fallback: '/404'  // 添加兜底页面
+      handleMissingId: 'warn'
     }
   }
 };
