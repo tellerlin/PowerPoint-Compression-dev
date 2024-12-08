@@ -1,16 +1,14 @@
 <script>
-    import { goto } from '$app/navigation';
-    import { onMount } from 'svelte';
-
-
     export const prerender = true;
+    import { goto } from '$app/navigation';
 
 
     let showAnimation = false;
 
 
+    // 在组件挂载后延迟显示动画
+    import { onMount } from 'svelte';
     onMount(() => {
-        // 延迟显示动画效果
         setTimeout(() => {
             showAnimation = true;
         }, 100);
@@ -19,8 +17,8 @@
 
 
 <svelte:head>
-    <title>Page Not Found - ByteSlim</title>
-    <meta name="description" content="404 - Page Not Found">
+    <title>404 - Page Not Found</title>
+    <meta name="description" content="Page not found - ByteSlim">
 </svelte:head>
 
 

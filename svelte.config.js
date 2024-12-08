@@ -24,7 +24,8 @@ const config = {
         '/',
         '/about',
         '/privacy', 
-        '/contact'
+        '/contact',
+        '/404'  // 添加 404 路由
       ],
       handleHttpError: 'warn',
       handleMissingId: 'warn'
