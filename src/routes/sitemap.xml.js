@@ -2,6 +2,7 @@ import { getPages } from '$lib/utils/sitemap';
 
 
 export const prerender = true;
+export const trailingSlash = 'always';
 
 
 export async function GET() {
@@ -27,9 +28,9 @@ function generateSitemap(pages) {
     const urlset = pages.map(page => `
     <url>
         <loc>${page.loc}</loc>
-        <lastmod>${page.lastmod}</lastmod>
-        <changefreq>${page.changefreq}</changefreq>
-        <priority>${page.priority}</priority>
+        <lastmod>${page.lastmod || new Date().toISOString().split('T')[0]}</lastmod>
+        <changefreq>${page.changefreq || 'weekly'}</changefreq>
+        <priority>${page.priority || '0.5'}</priority>
     </url>`).join('');
 
 
