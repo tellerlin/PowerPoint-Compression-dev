@@ -90,7 +90,8 @@
         <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
             Support Us
         </h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4 max-w-2xl mx-auto text-sm whitespace-nowrap">
+
+        <p class="text-base text-gray-600 dark:text-gray-300 mb-4 max-w-4xl mx-auto text-center whitespace-normal md:whitespace-nowrap">
             Keeping this ad-free tool running takes significant effort. If you find it valuable, consider buying me a coffee.
         </p>
 
