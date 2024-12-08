@@ -29,7 +29,10 @@ const config = {
         '/sitemap.xml'  // 添加sitemap.xml的预渲染
       ],
       handleHttpError: 'warn',
-      handleMissingId: 'warn'
+      handleMissingId: 'warn',
+      // 添加以下配置以确保所有页面都被正确处理
+      crawl: true,
+      concurrency: 10  // 可以根据需要调整并发数
     }
   }
 };

@@ -1,32 +1,12 @@
+import { getPages } from '$lib/utils/sitemap';
+
+
 export const prerender = true;
 
 
-const site = 'https://www.byteslim.com';
-
-
-const pages = [
-    { path: '/', priority: '1.0', changefreq: 'daily' },
-    { path: '/about', priority: '0.8', changefreq: 'weekly' },
-    { path: '/privacy', priority: '0.6', changefreq: 'monthly' },
-    { path: '/contact', priority: '0.7', changefreq: 'weekly' },
-    { path: '/404', priority: '0.1', changefreq: 'yearly' }  // 添加404页面
-];
-
-
 export async function GET() {
-    const urlset = pages.map(page => `
-    <url>
-        <loc>${site}${page.path === '/' ? '' : page.path}</loc>
-        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-        <changefreq>${page.changefreq}</changefreq>
-        <priority>${page.priority}</priority>
-    </url>`).join('');
-
-
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    ${urlset}
-</urlset>`;
+    const pages = await getPages();
+    const sitemap = generateSitemap(pages);
 
 
     return new Response(sitemap, {
@@ -35,4 +15,21 @@ export async function GET() {
             'Cache-Control': 'max-age=0, s-maxage=3600'
         }
     });
+}
+
+
+function generateSitemap(pages) {
+    const urlset = pages.map(page => `
+    <url>
+        <loc>${page.loc}</loc>
+        <lastmod>${page.lastmod || new Date().toISOString().split('T')[0]}</lastmod>
+        <changefreq>${page.changefreq || 'weekly'}</changefreq>
+        <priority>${page.priority || '0.5'}</priority>
+    </url>`).join('');
+
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${urlset}
+</urlset>`;
 }
