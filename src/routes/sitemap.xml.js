@@ -2,19 +2,25 @@ import { getPages } from '$lib/utils/sitemap';
 
 
 export const prerender = true;
+export const trailingSlash = 'always';
 
 
 export async function GET() {
-    const pages = await getPages();
-    const sitemap = generateSitemap(pages);
+    try {
+        const pages = await getPages();
+        const sitemap = generateSitemap(pages);
 
 
-    return new Response(sitemap, {
-        headers: {
-            'Content-Type': 'application/xml; charset=utf-8',
-            'Cache-Control': 'max-age=0, s-maxage=3600'
-        }
-    });
+        return new Response(sitemap, {
+            headers: {
+                'Content-Type': 'application/xml; charset=utf-8',
+                'Cache-Control': 'max-age=0, s-maxage=3600'
+            }
+        });
+    } catch (error) {
+        console.error('Sitemap generation error:', error);
+        return new Response('Error generating sitemap', { status: 500 });
+    }
 }
 
 
