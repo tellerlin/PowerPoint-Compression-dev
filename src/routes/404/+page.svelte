@@ -42,13 +42,13 @@
         </p>
         <div class="flex justify-center space-x-4">
             <button 
-                class="btn btn-primary px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                class="btn btn-primary px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600"
                 on:click={() => goto('/')}
             >
                 Back to Home
             </button>
             <button 
-                class="btn btn-secondary px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                class="btn btn-secondary px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 bg-gray-500 text-white hover:bg-gray-600"
                 on:click={() => goto('/contact')}
             >
                 Contact Support
