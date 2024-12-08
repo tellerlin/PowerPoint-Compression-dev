@@ -26,7 +26,8 @@ const config = {
         '/privacy', 
         '/contact',
         '/404',
-        '/sitemap.xml'
+        '/sitemap.xml',
+        '/sitemap'
       ],
       crawl: true,
       handleHttpError: 'warn',

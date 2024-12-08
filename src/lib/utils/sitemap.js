@@ -26,6 +26,11 @@ export async function getPages() {
             loc: `${site}/404`,
             priority: '0.1',
             changefreq: 'yearly'
+        },
+        { 
+            loc: `${site}/sitemap`, 
+            priority: '0.5', 
+            changefreq: 'daily'
         }
     ];
 }
