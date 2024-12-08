@@ -25,7 +25,8 @@ const config = {
         '/about',
         '/privacy', 
         '/contact',
-        '/404'  // 添加 404 路由
+        '/404',
+        '/sitemap.xml'  // 添加sitemap.xml的预渲染
       ],
       handleHttpError: 'warn',
       handleMissingId: 'warn'

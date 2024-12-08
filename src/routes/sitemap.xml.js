@@ -8,7 +8,8 @@ const pages = [
     { path: '/', priority: '1.0', changefreq: 'daily' },
     { path: '/about', priority: '0.8', changefreq: 'weekly' },
     { path: '/privacy', priority: '0.6', changefreq: 'monthly' },
-    { path: '/contact', priority: '0.7', changefreq: 'weekly' }
+    { path: '/contact', priority: '0.7', changefreq: 'weekly' },
+    { path: '/404', priority: '0.1', changefreq: 'yearly' }  // 添加404页面
 ];
 
 
