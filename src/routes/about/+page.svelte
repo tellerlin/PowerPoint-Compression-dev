@@ -2,7 +2,25 @@
     import { page } from '$app/stores';
 
 
-    // Structured Data
+    const features = [
+        {
+            title: "Advanced Compression",
+            description: "Cutting-edge algorithms that reduce file size without compromising visual quality.",
+            icon: "🚀"
+        },
+        {
+            title: "Privacy First",
+            description: "Your data is sacred. Files are processed and immediately deleted.",
+            icon: "🔒"
+        },
+        {
+            title: "Cross-Platform",
+            description: "Works seamlessly across different devices and operating systems.",
+            icon: "💻"
+        }
+    ];
+
+
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "WebPage",
@@ -28,61 +46,43 @@
     <meta name="description" content="Reduce PowerPoint file sizes quickly and securely. Maintain high-quality visuals with our advanced compression technology.">
     <meta name="keywords" content="PowerPoint compression, file size reduction, presentation optimization, privacy-first tool">
     
-    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="ByteSlim - Efficient PowerPoint Compression Tool">
     <meta property="og:description" content="Reduce PowerPoint file sizes quickly and securely. Maintain high-quality visuals with our advanced compression technology.">
     <meta property="og:url" content="https://byteslim.com/about">
     
-    <!-- Structured Data -->
     <script type="application/ld+json">
         {JSON.stringify(jsonLd)}
     </script>
 </svelte:head>
 
 
-<div class="max-w-6xl mx-auto px-6 py-8 bg-white dark:bg-gray-900">
-    <div class="text-center mb-8">
-        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
-            About Our PPTX Compression Tool
+<div class="bg-white dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 text-center">
+        <h1 class="text-5xl font-extrabold text-transparent bg-clip-text 
+                   bg-gradient-to-r from-blue-500 to-purple-600 mb-6">
+            ByteSlim
         </h1>
-    </div>
-
-
-    <div class="grid md:grid-cols-2 gap-8 mb-8">
-        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-            <h2 class="text-xl font-bold mb-3 text-blue-600 dark:text-blue-400">
-                Professional Compression Technology
-            </h2>
-            <p class="text-gray-700 dark:text-gray-300 text-sm">
-                Utilizing advanced algorithms to efficiently reduce presentation file size while maintaining visual quality.
-            </p>
-        </div>
-        
-        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-            <h2 class="text-xl font-bold mb-3 text-green-600 dark:text-green-400">
-                Privacy First Approach
-            </h2>
-            <p class="text-gray-700 dark:text-gray-300 text-sm">
-                We prioritize your data security. All processed files are automatically deleted upon page closure.
-            </p>
-        </div>
-    </div>
-
-
-    <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl text-center mb-8">
-        <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
-            Contact Us
-        </h2>
-        <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-sm">
-            <a 
-                href="mailto:info@byteslim.com" 
-                class="text-blue-600 hover:underline"
-                aria-label="Contact Email"
-            >
-                info@byteslim.com
-            </a>
+        <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Revolutionizing PowerPoint compression with technology that preserves quality and protects privacy.
         </p>
+    </div>
+
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="grid md:grid-cols-3 gap-8">
+            {#each features as feature}
+                <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="text-4xl mb-4">{feature.icon}</div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+                        {feature.title}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        {feature.description}
+                    </p>
+                </div>
+            {/each}
+        </div>
     </div>
 
 
@@ -90,7 +90,7 @@
         <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
             Support Us
         </h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-4 max-w-2xl mx-auto text-sm overflow-wrap-break-word">
+        <p class="text-gray-600 dark:text-gray-300 mb-4 max-w-2xl mx-auto text-sm">
             Keeping this ad-free tool running takes significant effort. If you find it valuable, consider buying me a coffee.
         </p>
         <div class="flex justify-center space-x-24">
