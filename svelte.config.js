@@ -1,4 +1,3 @@
-// svelte.config.js
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import adapter from '@sveltejs/adapter-cloudflare';
 
@@ -25,10 +24,12 @@ const config = {
         '/',
         '/about',
         '/privacy', 
-        '/contact'
+        '/contact',
+        '/404'  // 添加 404 页面
       ],
       handleHttpError: 'warn',
-      handleMissingId: 'warn'
+      handleMissingId: 'warn',
+      fallback: '/404'  // 添加兜底页面
     }
   }
 };
