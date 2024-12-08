@@ -4,7 +4,6 @@
   import '../app.css';  
 
 
-  // Metadata for the entire site  
   const siteMetadata = {  
     title: {
       en: 'ByteSlim - PowerPoint Compression Tool',
@@ -16,123 +15,75 @@
     },
     keywords: 'PowerPoint compression, file size reduction, document optimization',
     author: 'ByteSlim Team',  
-    url: 'https://byteslim.com'  
+    url: 'https://byteslim.com',
+    images: {
+      og: '/og-image.jpg',
+      twitter: '/twitter-image.jpg',
+      wechat: '/wechat-image.jpg'
+    }
   };  
 
 
   onMount(() => {
-    // 检测平台的函数
-    function detectPlatform() {
-      const userAgent = navigator.userAgent.toLowerCase();
-      if (userAgent.includes('micromessenger')) {
-        return 'wechat';
-      }
-      return 'other';
-    }
-
-
-    // 根据平台和语言设置 meta 标签
-    const platform = detectPlatform();
-    
-    const config = platform === 'wechat' 
-      ? {
-          title: siteMetadata.title.zh,
-          description: siteMetadata.description.zh
-        }
-      : {
-          title: siteMetadata.title.en,
-          description: siteMetadata.description.en
-        };
-
-
-    // 动态设置 meta 标签的数组
-    const metaTags = [
-      // Open Graph / Facebook
+    // 添加微信分享所需的 meta 标签
+    const wechatMetaTags = [
+      { name: 'description', content: siteMetadata.description.zh },
       { property: 'og:type', content: 'website' },
-      { property: 'og:url', content: siteMetadata.url },
-      { property: 'og:title', content: config.title },
-      { property: 'og:description', content: config.description },
-      { property: 'og:image', content: `${siteMetadata.url}/og-image.png` },
-
-
-      // Twitter
-      { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:url', content: siteMetadata.url },
-      { name: 'twitter:title', content: config.title },
-      { name: 'twitter:description', content: config.description },
-      { name: 'twitter:image', content: `${siteMetadata.url}/twitter-image.png` }
+      { property: 'og:title', content: siteMetadata.title.zh },
+      { property: 'og:description', content: siteMetadata.description.zh },
+      { property: 'og:image', content: `${siteMetadata.url}${siteMetadata.images.wechat}` },
+      
+      // 微信特定的 meta 标签
+      { name: 'weixin:type', content: 'webpage' },
+      { name: 'weixin:title', content: siteMetadata.title.zh },
+      { name: 'weixin:description', content: siteMetadata.description.zh },
+      { name: 'weixin:image', content: `${siteMetadata.url}${siteMetadata.images.wechat}` }
     ];
 
 
-    // 移除之前可能存在的动态 meta 标签
-    const existingDynamicMeta = document.querySelectorAll('meta[data-dynamic="true"]');
-    existingDynamicMeta.forEach(tag => tag.remove());
-
-
-    // 动态添加 meta 标签
-    metaTags.forEach(tag => {
+    // 添加微信分享所需的 meta 标签
+    wechatMetaTags.forEach(tag => {
       const metaTag = document.createElement('meta');
       Object.keys(tag).forEach(key => {
         metaTag.setAttribute(key, tag[key]);
       });
-      // 添加一个标记，方便后续清理
       metaTag.setAttribute('data-dynamic', 'true');
       document.head.appendChild(metaTag);
     });
+
+
+    // 添加 WeChat JS-SDK 配置（如果需要）
+    const wxScript = document.createElement('script');
+    wxScript.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
+    wxScript.async = true;
+    document.head.appendChild(wxScript);
   });
-
-
-  // Structured JSON-LD data  
-  const jsonLd = {  
-    "@context": "https://schema.org",  
-    "@type": "WebApplication",  
-    "name": "ByteSlim",  
-    "description": "PowerPoint file compression tool",  
-    "applicationCategory": "Productivity",  
-    "offers": {  
-      "@type": "Offer",  
-      "price": "0",  
-      "priceCurrency": "USD"  
-    }  
-  };  
-
-
-  // CSP configuration  
-  const cspContent = [  
-    "default-src 'self' https:",  
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",  
-    "style-src 'self' 'unsafe-inline'",  
-    "img-src 'self' data: blob: https:",  
-    "connect-src 'self' blob:",  
-    "media-src 'self' blob: https:",  
-    "frame-src 'self'",  
-    "font-src 'self' https: data:",  
-  ].join('; ');  
-</script>  
+</script>
 
 
 <svelte:head>  
-    <!-- Primary Meta Tags -->  
+    <!-- 原有的 meta 标签 -->
     <title>{siteMetadata.title.en}</title>  
     <meta name="description" content={siteMetadata.description.en}>  
     <meta name="keywords" content={siteMetadata.keywords}>  
     <meta name="author" content={siteMetadata.author}>  
 
 
-    <!-- Content Security Policy -->  
-    <meta http-equiv="Content-Security-Policy" content={cspContent}>  
+    <!-- Open Graph / Facebook -->  
+    <meta property="og:type" content="website">  
+    <meta property="og:url" content={siteMetadata.url}>  
+    <meta property="og:title" content={siteMetadata.title.en}>  
+    <meta property="og:description" content={siteMetadata.description.en}>  
+    <meta property="og:image" content="{siteMetadata.url}{siteMetadata.images.og}">  
 
 
-    <!-- Structured Data -->  
-    <script type="application/ld+json">  
-        {JSON.stringify(jsonLd)}  
-    </script>  
-
-
-    <!-- Favicon and other critical head elements -->  
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-</svelte:head>  
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content={siteMetadata.url}>
+    <meta name="twitter:title" content={siteMetadata.title.en}>
+    <meta name="twitter:description" content={siteMetadata.description.en}>
+    <meta name="twitter:image" content="{siteMetadata.url}{siteMetadata.images.twitter}">
+</svelte:head>
 
 
 <!-- 保持原有的页面结构和样式 -->
