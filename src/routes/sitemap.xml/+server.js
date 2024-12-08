@@ -1,4 +1,5 @@
 export const prerender = true;
+export const trailingSlash = 'always';
 
 
 const site = 'https://www.byteslim.com';
@@ -15,7 +16,7 @@ const pages = [
 export async function GET() {
     const urlset = pages.map(page => `
     <url>
-        <loc>${site}${page.path}</loc>
+        <loc>${site}${page.path === '/' ? '' : page.path}</loc>
         <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
         <changefreq>${page.changefreq}</changefreq>
         <priority>${page.priority}</priority>

@@ -25,7 +25,6 @@ export default {
         '/about',
         '/privacy', 
         '/contact',
-        '/404',
         '/sitemap.xml'
       ],
       handleHttpError: 'warn'
