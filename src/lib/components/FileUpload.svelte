@@ -1,13 +1,14 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import type { Events } from '$lib/types/events';
-
+    import { validateFile } from '$lib/utils/validation';
 
     const dispatch = createEventDispatcher<{
         fileSelected: Events.FileSelectedEvent;
     }>();
     
     let isDragging = false;
+    let isProcessing = false;
     
     const handleDragOver = (e: DragEvent) => {
         e.preventDefault();
@@ -16,35 +17,41 @@
     
     const handleDragLeave = () => isDragging = false;
     
-    const handleDrop = (e: DragEvent) => {
+    const handleDrop = async (e: DragEvent) => {
         e.preventDefault();
         isDragging = false;
         const file = e.dataTransfer?.files?.[0];
-        file && handleFile(file);
+        if (file) await handleFile(file);
     };
     
-    const handleFileInput = (e: Event) => {
+    const handleFileInput = async (e: Event) => {
         const file = (e.target as HTMLInputElement).files?.[0];
-        file && handleFile(file);
+        if (file) await handleFile(file);
     };
     
-    const handleFile = (file: File) => {
-    if (file.name.toLowerCase().endsWith('.pptx')) {
-        const blobUrl = URL.createObjectURL(file);
-        dispatch('fileSelected', { file, blobUrl });
-    } else {
-        alert('Please upload a PowerPoint (.pptx) file');
-    }
-};
+    const handleFile = async (file: File) => {
+        if (isProcessing) return;
+        
+        const error = validateFile(file);
+        if (error) {
+            alert(error);
+            return;
+        }
 
+        isProcessing = true;
+        try {
+            const blobUrl = URL.createObjectURL(file);
+            dispatch('fileSelected', { file, blobUrl });
+        } finally {
+            isProcessing = false;
+        }
+    };
 </script>
 
-
-<button
-    type="button"
-    class="w-full border-2 border-dashed border-gray-300 rounded-lg p-12 text-center {isDragging
-        ? 'bg-primary/10 border-primary'
-        : 'bg-background-alt'}"
+<div
+    class="w-full border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 
+           {isDragging ? 'border-primary bg-primary/10' : 'border-gray-300 bg-background-alt hover:border-primary/50'} 
+           {isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
     on:dragover={handleDragOver}
     on:dragleave={handleDragLeave}
     on:drop={handleDrop}
@@ -55,10 +62,11 @@
         class="hidden"
         id="fileInput"
         on:change={handleFileInput}
+        disabled={isProcessing}
     />
     <label
         for="fileInput"
-        class="cursor-pointer inline-flex flex-col items-center gap-4"
+        class="cursor-pointer inline-flex flex-col items-center gap-4 {isProcessing ? 'pointer-events-none' : ''}"
     >
         <svg
             class="w-16 h-16 text-gray-400"
@@ -74,8 +82,15 @@
             />
         </svg>
         <div class="text-lg">
-            Drag & drop your PowerPoint file here <br />
-            or <span class="text-primary">browse</span>
+            {#if isProcessing}
+                Processing...
+            {:else}
+                Drag & drop your PowerPoint file here <br />
+                or <span class="text-primary">browse</span>
+            {/if}
+        </div>
+        <div class="text-sm text-gray-500">
+            Maximum file size: 100MB
         </div>
     </label>
-</button>
+</div>
