@@ -90,7 +90,7 @@
             {/if}
         </div>
         <div class="text-sm text-gray-500">
-            Maximum file size: 100MB
+            Maximum file size: 300MB
         </div>
     </label>
 </div>
