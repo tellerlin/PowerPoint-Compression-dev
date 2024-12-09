@@ -1,7 +1,6 @@
 import { dev } from '$app/environment';
 
 
-// Sitemap generation function
 function generateSitemap(routes) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -16,7 +15,6 @@ function generateSitemap(routes) {
 }
 
 
-// Define your routes
 const sitemapRoutes = [
   { url: '/', priority: '1.0', changefreq: 'daily' },
   { url: '/about', priority: '0.8', changefreq: 'weekly' },
@@ -27,40 +25,36 @@ const sitemapRoutes = [
 
 export async function handle({ event, resolve }) {
   try {
-    // Sitemap handling
     if (event.url.pathname === '/sitemap.xml') {
       return new Response(generateSitemap(sitemapRoutes), {
         headers: {
           'Content-Type': 'application/xml',
-          'Cache-Control': 'max-age=0, s-maxage=3600' // Cache for 1 hour
+          'Cache-Control': 'max-age=0, s-maxage=3600'
         }
       });
     }
 
 
-    // Resolve the event
     const response = await resolve(event);
 
 
-    // Add security headers (only in production)
     if (!dev) {
-      // Security headers
       response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
       response.headers.set('X-Frame-Options', 'DENY');
       response.headers.set('X-Content-Type-Options', 'nosniff');
       response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
       
-      // 更宽松的 CSP，允许更多资源
-      response.headers.set('Content-Security-Policy', 
-        "default-src 'self' https:; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://res.wx.qq.com; " +
-        "style-src 'self' 'unsafe-inline' https:; " +
-        "img-src 'self' data: blob: https: http:; " +
-        "connect-src 'self' blob: https:; " +
-        "media-src 'self' blob: https:; " +
-        "frame-src 'self' https:; " +
-        "font-src 'self' https: data:"
+      response.headers.set('Content-Security-Policy',   
+        "default-src 'self' https:; " +  
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://res.wx.qq.com https://static.cloudflareinsights.com; " +  
+        "style-src 'self' 'unsafe-inline' https:; " +  
+        "img-src 'self' data: blob: https: http:; " +  
+        "connect-src 'self' blob: https:; " +  
+        "media-src 'self' blob: https:; " +  
+        "frame-src 'self' https:; " +  
+        "font-src 'self' https: data;"  
       );
+
     }
 
 
@@ -68,7 +62,6 @@ export async function handle({ event, resolve }) {
   } catch (error) {
     console.error('SvelteKit handle error:', error);
     
-    // Enhanced error handling
     return new Response(
       JSON.stringify({
         message: 'An unexpected error occurred',
@@ -85,12 +78,8 @@ export async function handle({ event, resolve }) {
 }
 
 
-// Optional: More detailed error handling
 export function handleError({ error, event }) {
-  // Log errors to a service in production
   if (!dev) {
-    // Example: Send error to logging service
-    // logErrorToService(error);
     console.error('Unhandled error:', error);
   }
 
