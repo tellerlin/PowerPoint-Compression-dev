@@ -1,7 +1,6 @@
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import adapter from '@sveltejs/adapter-cloudflare';
 
-
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   preprocess: vitePreprocess(),
@@ -10,13 +9,14 @@ const config = {
     csp: {
       directives: {
         'default-src': ['self', 'https:'],
-        'script-src': ['self', 'unsafe-inline', 'unsafe-eval'],
+        'script-src': ['self', 'unsafe-inline', 'unsafe-eval', 'blob:'],
         'style-src': ['self', 'unsafe-inline'],
         'img-src': ['self', 'data:', 'blob:', 'https:'],
         'connect-src': ['self', 'blob:'],
         'media-src': ['self', 'blob:', 'https:'],
         'frame-src': ['self'],
-        'font-src': ['self', 'https:', 'data:']
+        'font-src': ['self', 'https:', 'data:'],
+        'worker-src': ['self', 'blob:']
       }
     },
     prerender: {
@@ -34,6 +34,5 @@ const config = {
     }
   }
 };
-
 
 export default config;
