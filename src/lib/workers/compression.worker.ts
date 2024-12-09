@@ -121,15 +121,31 @@ self.onmessage = async (e: MessageEvent) => {
       throw new Error('Only .pptx files are supported');
     }
 
+    // Initial progress update
+    self.postMessage({ 
+      type: 'progress', 
+      data: { progress: 0, status: 'Starting compression...' } 
+    });
+
     const zip = new JSZip();
     const content = await file.arrayBuffer();
     const pptx = await zip.loadAsync(content);
 
+    // Update progress after loading file
+    self.postMessage({ 
+      type: 'progress', 
+      data: { progress: 10, status: 'Analyzing file structure...' } 
+    });
+
     const clearedMedia = await cleanUnusedLayoutMedia(pptx);
-    self.postMessage({ type: 'progress', data: { progress: 10, status: 'Cleaned unused media' } });
+    self.postMessage({ 
+      type: 'progress', 
+      data: { progress: 20, status: 'Cleaned unused media' } 
+    });
 
     const images = Object.keys(pptx.files).filter(name => /\.(png|jpg|jpeg|gif)$/i.test(name));
     let processed = 0;
+    const totalImages = images.length;
 
     for (const image of images) {
       try {
@@ -144,11 +160,12 @@ self.onmessage = async (e: MessageEvent) => {
         pptx.file(image, bestImage);
 
         processed++;
+        const currentProgress = Math.round((processed / totalImages) * 60) + 20; // Progress from 20% to 80%
         self.postMessage({
           type: 'progress',
           data: { 
-            progress: Math.round((processed / images.length) * 90) + 10,
-            status: `Processing image ${processed} of ${images.length}`
+            progress: currentProgress,
+            status: `Processing image ${processed} of ${totalImages}`
           }
         });
       } catch (error) {
@@ -156,10 +173,32 @@ self.onmessage = async (e: MessageEvent) => {
       }
     }
 
+    // Update progress before final compression
+    self.postMessage({ 
+      type: 'progress', 
+      data: { progress: 80, status: 'Finalizing compression...' } 
+    });
+
     const compressedBlob = await pptx.generateAsync({
       type: 'blob',
       compression: 'DEFLATE',
       compressionOptions: { level: 9 }
+    }, (metadata) => {
+      // Update progress during final compression
+      const finalProgress = Math.round(metadata.percent * 0.2) + 80; // Progress from 80% to 100%
+      self.postMessage({
+        type: 'progress',
+        data: { 
+          progress: finalProgress,
+          status: 'Generating compressed file...'
+        }
+      });
+    });
+
+    // Final progress update
+    self.postMessage({ 
+      type: 'progress', 
+      data: { progress: 100, status: 'Compression complete!' } 
     });
 
     self.postMessage({ type: 'complete', data: compressedBlob });

@@ -9,24 +9,23 @@
     import { onMount } from 'svelte';  
 
     let errorMessage = '';  
-    let originalFileName = ''; // 新增：存储原始文件名  
+    let originalFileName = '';
+    let showResults = false;
 
     async function handleFileSelected(event: CustomEvent<Events.FileSelectedEvent>) {  
         if (!browser) return;  
 
         const file = event.detail.file;  
-        originalFileName = file.name; // 设置原始文件名  
+        originalFileName = file.name;
         errorMessage = '';  
+        showResults = false;
 
         compressionProgress.set({ progress: 0, status: 'Starting compression...' });  
         compressionResult.set({ originalSize: 0, compressedSize: 0, downloadUrl: '' });  
 
         try {  
             const compressed = await compressPPTX(file, (progress) => {  
-                compressionProgress.set({  
-                    progress,  
-                    status: `Compressing... ${progress}%`  
-                });  
+                compressionProgress.set(progress);  
             });  
 
             if (browser) {  
@@ -35,7 +34,8 @@
                     originalSize: file.size,  
                     compressedSize: compressed.size,  
                     downloadUrl  
-                });  
+                });
+                showResults = true;
             }  
         } catch (error) {  
             errorMessage = error instanceof Error ? error.message : 'Compression failed';  
@@ -60,22 +60,27 @@
 
             {#if browser}  
                 <FileUpload on:fileSelected={handleFileSelected} />  
-                <ProgressBar   
-                    progress={$compressionProgress.progress}   
-                    status={$compressionProgress.status}   
-                />  
+                
+                {#if $compressionProgress.progress > 0 && !showResults}
+                    <ProgressBar   
+                        progress={$compressionProgress.progress}   
+                        status={$compressionProgress.status}   
+                    />  
+                {/if}
 
                 {#if errorMessage}  
                     <div class="text-red-500 mt-4">{errorMessage}</div>  
                 {/if}  
 
-                <CompressionResults  
-                    originalSize={$compressionResult.originalSize}  
-                    compressedSize={$compressionResult.compressedSize}  
-                    downloadUrl={$compressionResult.downloadUrl}  
-                    originalFileName={originalFileName}
-                />  
+                {#if showResults}
+                    <CompressionResults  
+                        originalSize={$compressionResult.originalSize}  
+                        compressedSize={$compressionResult.compressedSize}  
+                        downloadUrl={$compressionResult.downloadUrl}  
+                        originalFileName={originalFileName}
+                    />  
+                {/if}
             {/if}  
         </div>  
     </div>  
-</div>  
+</div>
