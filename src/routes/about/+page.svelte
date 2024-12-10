@@ -87,7 +87,7 @@
                 </h2>
 
                 <p class="text-base text-gray-600 dark:text-gray-300 mb-4 max-w-4xl mx-auto text-center whitespace-normal md:whitespace-nowrap">
-                    Keeping this ad-free tool running takes significant effort. If you find it valuable, consider buying me a coffee.
+                    Keeping this tool free takes work. If it's been a lifesaver, buy me a coffee?
                 </p>
 
                 <div class="flex justify-center space-x-24 items-start">
