@@ -1,13 +1,18 @@
 import JSZip from 'jszip';
 import { analyzeImage } from '../utils/image-processing/format-detection';
-import { compressImage } from '../utils/image-processing/compression';
+import { optimizeImage } from '../utils/image-processing/optimization';
 import { cleanUnusedMedia } from '../utils/pptx/media-cleanup';
 import { createImageProcessingQueue } from '../utils/image-processing/queue';
+import { COMPRESSION_SETTINGS } from '../utils/image-processing/constants';
+import { checkMemoryUsage, cleanupImageResources } from '../utils/image-processing/memory-management';
+import { handleImageError, isProcessableImage } from '../utils/image-processing/error-handling';
 
-// Add memory management
-const BATCH_SIZE = 3;
-const MAX_CONCURRENT_OPERATIONS = 2;
-const MEMORY_THRESHOLD = 0.8; // 80% memory usage threshold
+const {
+    BATCH_SIZE,
+    MAX_CONCURRENT_OPERATIONS,
+    MEMORY_THRESHOLD,
+    COOLDOWN_TIME
+} = COMPRESSION_SETTINGS;
 
 self.onmessage = async (e: MessageEvent) => {
     try {
@@ -27,20 +32,12 @@ self.onmessage = async (e: MessageEvent) => {
         await cleanUnusedMedia(pptx);
         updateProgress(20, 'Cleaned unused media');
 
-        const images = Object.keys(pptx.files)
-            .filter(name => /\.(png|jpg|jpeg|gif)$/i.test(name));
-        
+        const images = Object.keys(pptx.files).filter(isProcessableImage);
         let processed = 0;
         const totalImages = images.length;
 
         for (let i = 0; i < images.length; i += BATCH_SIZE) {
-            // Check memory usage
-            if (self.performance && self.performance.memory) {
-                const memoryUsage = self.performance.memory.usedJSHeapSize / self.performance.memory.jsHeapSizeLimit;
-                if (memoryUsage > MEMORY_THRESHOLD) {
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Memory cool-down
-                }
-            }
+            await checkMemoryUsage(MEMORY_THRESHOLD);
 
             const batch = images.slice(i, i + BATCH_SIZE);
             await Promise.all(batch.map(async (image) => {
@@ -59,15 +56,12 @@ self.onmessage = async (e: MessageEvent) => {
                         const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
                         const analysis = analyzeImage(imageData);
                         
-                        const compressedResult = await compressImage(imgData, analysis);
-                        if (compressedResult.data.byteLength < imgData.byteLength) {
-                            pptx.file(image, compressedResult.data);
+                        const optimized = await optimizeImage(imgData, analysis);
+                        if (optimized.data.byteLength < imgData.byteLength) {
+                            pptx.file(image, optimized.data);
                         }
 
-                        // Cleanup
-                        bitmap.close();
-                        canvas.width = 0;
-                        canvas.height = 0;
+                        cleanupImageResources(bitmap, canvas);
                     });
 
                     processed++;
@@ -77,7 +71,7 @@ self.onmessage = async (e: MessageEvent) => {
                         `Processing image ${processed} of ${totalImages}`
                     );
                 } catch (error) {
-                    console.error(`Error processing ${image}:`, error);
+                    throw handleImageError(error, image);
                 }
             }));
         }
