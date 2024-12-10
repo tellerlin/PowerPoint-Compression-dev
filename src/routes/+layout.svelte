@@ -4,7 +4,6 @@
   import Header from './Header.svelte';  
   import '../app.css';  
 
-
   const siteMetadata = {  
     title: {
       en: 'ByteSlim - PowerPoint Compression Tool',
@@ -24,8 +23,21 @@
     }
   };  
 
-
   onMount(() => {
+    // Google Analytics Setup
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=G-M91P9505Z1`;
+    document.head.appendChild(script);
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      window.dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'G-M91P9505Z1');
+
+    // WeChat Meta Tags
     const wechatMetaTags = [
       { name: 'description', content: siteMetadata.description.zh },
       { property: 'og:type', content: 'website' },
@@ -39,7 +51,6 @@
       { name: 'weixin:image', content: `${siteMetadata.url}${siteMetadata.images.wechat}` }
     ];
 
-
     wechatMetaTags.forEach(tag => {
       const metaTag = document.createElement('meta');
       Object.keys(tag).forEach(key => {
@@ -49,7 +60,6 @@
       document.head.appendChild(metaTag);
     });
 
-
     const wxScript = document.createElement('script');
     wxScript.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
     wxScript.async = true;
@@ -57,13 +67,11 @@
   });
 </script>
 
-
 <svelte:head>  
     <title>{siteMetadata.title.en}</title>  
     <meta name="description" content={siteMetadata.description.en}>  
     <meta name="keywords" content={siteMetadata.keywords}>  
     <meta name="author" content={siteMetadata.author}>  
-
 
     <meta property="og:type" content="website">  
     <meta property="og:url" content={siteMetadata.url}>  
@@ -71,14 +79,12 @@
     <meta property="og:description" content={siteMetadata.description.en}>  
     <meta property="og:image" content="{siteMetadata.url}{siteMetadata.images.og}">  
 
-
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content={siteMetadata.url}>
     <meta name="twitter:title" content={siteMetadata.title.en}>
     <meta name="twitter:description" content={siteMetadata.description.en}>
     <meta name="twitter:image" content="{siteMetadata.url}{siteMetadata.images.twitter}">
 </svelte:head>
-
 
 <div class="app" lang="en" aria-label="ByteSlim Application">  
     <Header />  
@@ -105,7 +111,6 @@
                     </ul>
                 </div>
 
-
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Connect</h3>
                     <ul class="space-y-2">
@@ -118,9 +123,7 @@
             </div>
         </div>
     </footer>
-
 </div>  
-
 
 <style>  
     .app {  
@@ -129,7 +132,6 @@
         min-height: 100vh;  
         width: 100%;  
     }  
-
 
     main {  
         flex: 1 0 auto;  
