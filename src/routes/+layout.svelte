@@ -1,70 +1,22 @@
 <script>
-  import { onMount } from 'svelte';
-  import { page } from '$app/stores';
-  import Header from './Header.svelte';  
-  import '../app.css';  
+    import { onMount } from 'svelte';
+    import { page } from '$app/stores';
+    import Header from './Header.svelte';
+    import '../app.css';
+    import { siteMetadata, preloadResources } from '$lib/config/metadata';
+    import { initializeGoogleAnalytics, initializeWeChatMetaTags } from '$lib/utils/analytics';
+    import { loadPreloadResources } from '$lib/utils/resource-loader';
 
-  const siteMetadata = {  
-    title: {
-      en: 'ByteSlim - PowerPoint Compression Tool',
-      zh: 'ByteSlim - PPT压缩工具'
-    },
-    description: {
-      en: 'Efficiently compress PowerPoint files with our lightweight, user-friendly compression tool',
-      zh: '使用我们轻量级、用户友好的压缩工具，高效压缩PowerPoint文件'
-    },
-    keywords: 'PowerPoint compression, file size reduction, document optimization',
-    author: 'ByteSlim Team',  
-    url: 'https://byteslim.com',
-    images: {
-      og: '/og-image.jpg',
-      twitter: '/twitter-image.jpg',
-      wechat: '/wechat-image.jpg'
-    }
-  };  
+    onMount(() => {
+        // Load critical resources immediately
+        loadPreloadResources(preloadResources);
 
-  onMount(() => {
-    // Google Analytics Setup
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=G-M91P9505Z1`;
-    document.head.appendChild(script);
-
-    window.dataLayer = window.dataLayer || [];
-    function gtag() {
-      window.dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
-    gtag('config', 'G-M91P9505Z1');
-
-    // WeChat Meta Tags
-    const wechatMetaTags = [
-      { name: 'description', content: siteMetadata.description.zh },
-      { property: 'og:type', content: 'website' },
-      { property: 'og:title', content: siteMetadata.title.zh },
-      { property: 'og:description', content: siteMetadata.description.zh },
-      { property: 'og:image', content: `${siteMetadata.url}${siteMetadata.images.wechat}` },
-      
-      { name: 'weixin:type', content: 'webpage' },
-      { name: 'weixin:title', content: siteMetadata.title.zh },
-      { name: 'weixin:description', content: siteMetadata.description.zh },
-      { name: 'weixin:image', content: `${siteMetadata.url}${siteMetadata.images.wechat}` }
-    ];
-
-    wechatMetaTags.forEach(tag => {
-      const metaTag = document.createElement('meta');
-      Object.keys(tag).forEach(key => {
-        metaTag.setAttribute(key, tag[key]);
-      });
-      metaTag.setAttribute('data-dynamic', 'true');
-      document.head.appendChild(metaTag);
+        // Defer non-critical resource loading
+        setTimeout(() => {
+            initializeGoogleAnalytics();
+            initializeWeChatMetaTags(siteMetadata);
+        }, 2000);
     });
-
-    const wxScript = document.createElement('script');
-    wxScript.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
-    wxScript.async = true;
-    document.head.appendChild(wxScript);
-  });
 </script>
 
 <svelte:head>  
@@ -72,6 +24,9 @@
     <meta name="description" content={siteMetadata.description.en}>  
     <meta name="keywords" content={siteMetadata.keywords}>  
     <meta name="author" content={siteMetadata.author}>  
+    <meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="canonical" href={siteMetadata.url + $page.url.pathname}>
 
     <meta property="og:type" content="website">  
     <meta property="og:url" content={siteMetadata.url}>  
@@ -110,7 +65,6 @@
                         <li><a href="/sitemap" class="text-gray-500 hover:text-blue-500">Sitemap</a></li>
                     </ul>
                 </div>
-
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Connect</h3>
                     <ul class="space-y-2">
@@ -138,4 +92,14 @@
         width: 100%;  
         overflow-y: auto;  
     }  
+
+    :global(body) {
+        scroll-behavior: smooth;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        :global(body) {
+            scroll-behavior: auto;
+        }
+    }
 </style>
