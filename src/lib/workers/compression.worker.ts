@@ -1,116 +1,137 @@
-import JSZip from 'jszip';
-import { analyzeImage } from '../utils/image-processing/format-detection';
-import { optimizeImage } from '../utils/image-processing/optimization';
-import { cleanUnusedMedia } from '../utils/pptx/media-cleanup';
-import { createImageProcessingQueue } from '../utils/image-processing/queue';
-import { COMPRESSION_SETTINGS } from '../utils/image-processing/constants';
-import { checkMemoryUsage, cleanupImageResources } from '../utils/image-processing/memory-management';
-import { handleImageError, isProcessableImage } from '../utils/image-processing/error-handling';
-import { parseSlideImages } from '../utils/pptx/slide-parser';
-import { cropImage } from '../utils/image-processing/cropping';
+import JSZip from 'jszip';  
+import { analyzeImage } from '../utils/image-processing/format-detection';  
+import { optimizeImage } from '../utils/image-processing/optimization';  
+import { cleanUnusedMedia } from '../utils/pptx/media-cleanup';  
+import { createImageProcessingQueue } from '../utils/image-processing/queue';  
+import { COMPRESSION_SETTINGS } from '../utils/image-processing/constants';  
+import { checkMemoryUsage, cleanupImageResources } from '../utils/image-processing/memory-management';  
+import { handleImageError, isProcessableImage } from '../utils/image-processing/error-handling';  
+import { parseSlideImages, removeSrcRect } from '../utils/pptx/xml-parser';  
+import { cropImage } from '../utils/image-processing/cropping';  
+import { logger } from '../utils/debug-logger';  
 
-const {
-    BATCH_SIZE,
-    MAX_CONCURRENT_OPERATIONS,
-    MEMORY_THRESHOLD,
-    COOLDOWN_TIME
-} = COMPRESSION_SETTINGS;
+const {  
+    BATCH_SIZE,  
+    MAX_CONCURRENT_OPERATIONS,  
+    MEMORY_THRESHOLD  
+} = COMPRESSION_SETTINGS;  
 
-self.onmessage = async (e: MessageEvent) => {
-    try {
-        const { file } = e.data;
-        if (!file.name.toLowerCase().endsWith('.pptx')) {
-            throw new Error('Only .pptx files are supported');
-        }
+self.onmessage = async (e: MessageEvent) => {  
+    try {  
+        const { file } = e.data;  
+        if (!file.name.toLowerCase().endsWith('.pptx')) {  
+            throw new Error('Only .pptx files are supported');  
+        }  
 
-        const queue = createImageProcessingQueue(MAX_CONCURRENT_OPERATIONS);
-        updateProgress(0, 'Starting compression...');
+        logger.log('info', 'Starting PPTX processing', { fileName: file.name, fileSize: file.size, lastModified: new Date(file.lastModified).toISOString() });  
 
-        const zip = new JSZip();
-        const content = await file.arrayBuffer();
-        const pptx = await zip.loadAsync(content);
+        const queue = createImageProcessingQueue(MAX_CONCURRENT_OPERATIONS);  
+        updateProgress(0, 'Starting compression...');  
 
-        updateProgress(10, 'Analyzing file structure...');
-        await cleanUnusedMedia(pptx);
+        const zip = new JSZip();  
+        const content = await file.arrayBuffer();  
+        const pptx = await zip.loadAsync(content);  
+        logger.log('debug', 'PPTX file loaded', { totalFiles: Object.keys(pptx.files).length, totalSize: content.byteLength });  
 
-        // Parse slide images and get crop information
-        updateProgress(20, 'Analyzing image crops...');
-        const cropInfos = await parseSlideImages(pptx);
-        
-        const images = Object.keys(pptx.files).filter(isProcessableImage);
-        let processed = 0;
-        const totalImages = images.length;
+        updateProgress(10, 'Analyzing file structure...');  
+        await cleanUnusedMedia(pptx);  
 
-        for (let i = 0; i < images.length; i += BATCH_SIZE) {
-            await checkMemoryUsage(MEMORY_THRESHOLD);
+        // Parse slide images and get crop information  
+        updateProgress(20, 'Processing image crops...');  
+        const cropInfos = await parseSlideImages(pptx);  
 
-            const batch = images.slice(i, i + BATCH_SIZE);
-            await Promise.all(batch.map(async (image) => {
-                try {
-                    await queue.add(async () => {
-                        let imgData = await pptx.file(image)?.async('arraybuffer');
-                        if (!imgData) return;
+        logger.log('info', `Processing ${cropInfos.length} images with crop information`);  
+        for (const cropInfo of cropInfos) {  
+            const imgFile = pptx.file(cropInfo.imageFile);  
+            if (!imgFile) {  
+                logger.log('warn', `Image file not found: ${cropInfo.imageFile}`);  
+                continue;  
+            }  
 
-                        // Apply cropping if needed
-                        const cropInfo = cropInfos.find(info => info.imageFile === image);
-                        if (cropInfo) {
-                            imgData = await cropImage(imgData, cropInfo.cropRect);
-                        }
+            try {  
+                logger.log('debug', `Processing image: ${cropInfo.imageFile}`, { slideFile: cropInfo.slideFile, cropRect: cropInfo.cropRect });  
+                const imgData = await imgFile.async('arraybuffer');  
+                const croppedData = await cropImage(imgData, cropInfo.cropRect);  
+                pptx.file(cropInfo.imageFile, croppedData);  
 
-                        const imageBlob = new Blob([imgData]);
-                        const bitmap = await createImageBitmap(imageBlob);
-                        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) return;
+                const slideFile = cropInfo.slideFile;  
+                const slideContent = await pptx.file(slideFile)?.async('string');  
+                if (slideContent) {  
+                    const rId = cropInfo.imageFile.match(/image(\d+)/)?.[1];  
+                    if (rId) {  
+                        const updatedContent = removeSrcRect(slideContent, `rId${rId}`);  
+                        pptx.file(slideFile, updatedContent);  
+                        logger.log('debug', `Updated slide XML: ${slideFile}`);  
+                    }  
+                }  
+            } catch (error) {  
+                logger.log('error', `Error processing image: ${cropInfo.imageFile}`, error);  
+            }  
+        }  
 
-                        ctx.drawImage(bitmap, 0, 0);
-                        const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
-                        const analysis = analyzeImage(imageData);
-                        
-                        const optimized = await optimizeImage(imgData, analysis);
-                        if (optimized.data.byteLength < imgData.byteLength) {
-                            pptx.file(image, optimized.data);
-                        }
+        // Then process all images for compression  
+        updateProgress(40, 'Compressing images...');  
+        const images = Object.keys(pptx.files).filter(isProcessableImage);  
+        let processed = 0;  
+        const totalImages = images.length;  
 
-                        cleanupImageResources(bitmap, canvas);
-                    });
+        logger.log('info', `Starting compression for ${totalImages} images`);  
 
-                    processed++;
-                    const currentProgress = Math.round((processed / totalImages) * 60) + 20;
-                    updateProgress(
-                        currentProgress,
-                        `Processing image ${processed} of ${totalImages}`
-                    );
-                } catch (error) {
-                    throw handleImageError(error, image);
-                }
-            }));
-        }
+        for (let i = 0; i < images.length; i += BATCH_SIZE) {  
+            await checkMemoryUsage(MEMORY_THRESHOLD);  
 
-        updateProgress(80, 'Finalizing compression...');
+            const batch = images.slice(i, i + BATCH_SIZE);  
+            await Promise.all(batch.map(async (image) => {  
+                try {  
+                    await queue.add(async () => {  
+                        const imgData = await pptx.file(image)?.async('arraybuffer');  
+                        if (!imgData) return;  
 
-        const compressedBlob = await pptx.generateAsync({
-            type: 'blob',
-            compression: 'DEFLATE',
-            compressionOptions: { level: 9 }
-        }, (metadata) => {
-            const finalProgress = Math.round(metadata.percent * 0.2) + 80;
-            updateProgress(finalProgress, 'Generating compressed file...');
-        });
+                        const imageBlob = new Blob([imgData]);  
+                        const bitmap = await createImageBitmap(imageBlob);  
+                        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);  
+                        const ctx = canvas.getContext('2d');  
+                        if (!ctx) return;  
 
-        updateProgress(100, 'Compression complete!');
-        self.postMessage({ type: 'complete', data: compressedBlob });
-    } catch (error) {
-        self.postMessage({ 
-            type: 'error', 
-            data: error instanceof Error ? error.message : 'Unknown error occurred' 
-        });
-    }
-};
+                        ctx.drawImage(bitmap, 0, 0);  
+                        const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);  
+                        const analysis = analyzeImage(imageData);  
 
-function updateProgress(progress: number, status: string): void {
-    self.postMessage({ 
-        type: 'progress', 
-        data: { progress, status } 
-    });
+                        const optimized = await optimizeImage(imgData, analysis);  
+                        if (optimized.data.byteLength < imgData.byteLength) {  
+                            pptx.file(image, optimized.data);  
+                            logger.log('debug', `Compressed image: ${image}`, { originalSize: imgData.byteLength, compressedSize: optimized.data.byteLength, compressionRatio: ((1 - optimized.data.byteLength / imgData.byteLength) * 100).toFixed(2) + '%' });  
+                        } else {  
+                            logger.log('debug', `Image not compressed: ${image}`, { originalSize: imgData.byteLength, compressedSize: optimized.data.byteLength });  
+                        }  
+                        processed++;  
+                        updateProgress(40 + Math.min(50 * processed / totalImages, 50), 'Compressing images...');  
+                    });  
+                } catch (error) {  
+                    logger.log('error', `Error optimizing image: ${image}`, error);  
+                }  
+            }));  
+
+            updateProgress(40 + 50 * (i + batch.length) / totalImages, 'Compressing images - Batch complete');  
+        }  
+
+        // Wait for all queue tasks to complete  
+        await queue.flush();  
+
+        updateProgress(90, 'Finalizing PPTX file...');  
+
+        const blob = await pptx.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 9 } });  
+        if (!blob || blob.size === 0) {  
+            throw new Error('Generated blob is invalid or empty');  
+        }  
+
+        self.postMessage({ status: 'done', blob }, [blob]);  
+    } catch (error) {  
+        logger.log('error', 'Compression failed', error);  
+        self.postMessage({ status: 'error', message: error instanceof Error ? error.message : 'Unknown error occurred' });  
+    }  
+};  
+
+function updateProgress(progress: number, status: string): void {  
+    self.postMessage({ type: 'progress', data: { progress, status } });  
 }
