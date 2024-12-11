@@ -6,8 +6,6 @@ import { createImageProcessingQueue } from '../utils/image-processing/queue';
 import { COMPRESSION_SETTINGS } from '../utils/image-processing/constants';
 import { checkMemoryUsage, cleanupImageResources } from '../utils/image-processing/memory-management';
 import { handleImageError, isProcessableImage } from '../utils/image-processing/error-handling';
-import { parseSlideImages } from '../utils/pptx/slide-parser';
-import { cropImage } from '../utils/image-processing/cropping';
 
 const {
     BATCH_SIZE,
@@ -32,11 +30,8 @@ self.onmessage = async (e: MessageEvent) => {
 
         updateProgress(10, 'Analyzing file structure...');
         await cleanUnusedMedia(pptx);
+        updateProgress(20, 'Cleaned unused media');
 
-        // Parse slide images and get crop information
-        updateProgress(20, 'Analyzing image crops...');
-        const cropInfos = await parseSlideImages(pptx);
-        
         const images = Object.keys(pptx.files).filter(isProcessableImage);
         let processed = 0;
         const totalImages = images.length;
@@ -48,14 +43,8 @@ self.onmessage = async (e: MessageEvent) => {
             await Promise.all(batch.map(async (image) => {
                 try {
                     await queue.add(async () => {
-                        let imgData = await pptx.file(image)?.async('arraybuffer');
+                        const imgData = await pptx.file(image)?.async('arraybuffer');
                         if (!imgData) return;
-
-                        // Apply cropping if needed
-                        const cropInfo = cropInfos.find(info => info.imageFile === image);
-                        if (cropInfo) {
-                            imgData = await cropImage(imgData, cropInfo.cropRect);
-                        }
 
                         const imageBlob = new Blob([imgData]);
                         const bitmap = await createImageBitmap(imageBlob);

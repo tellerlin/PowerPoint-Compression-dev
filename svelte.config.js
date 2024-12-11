@@ -9,17 +9,10 @@ const config = {
     csp: {
       directives: {
         'default-src': ['self', 'https:'],
-        'script-src': [
-          'self', 
-          'unsafe-inline', 
-          'unsafe-eval', 
-          'blob:',
-          'https://www.googletagmanager.com',
-          'https://res.wx.qq.com'
-        ],
+        'script-src': ['self', 'unsafe-inline', 'unsafe-eval', 'blob:'],
         'style-src': ['self', 'unsafe-inline'],
         'img-src': ['self', 'data:', 'blob:', 'https:'],
-        'connect-src': ['self', 'blob:', 'https:'],
+        'connect-src': ['self', 'blob:'],
         'media-src': ['self', 'blob:', 'https:'],
         'frame-src': ['self'],
         'font-src': ['self', 'https:', 'data:'],
