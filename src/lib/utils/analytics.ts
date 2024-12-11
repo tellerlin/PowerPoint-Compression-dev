@@ -1,18 +1,26 @@
-export function initializeGoogleAnalytics() {
+export function initializeGoogleAnalytics(nonce: string) {
+    // Create a nonce-based inline script for gtag initialization
+    const inlineScript = document.createElement('script');
+    inlineScript.setAttribute('nonce', nonce);
+    inlineScript.textContent = `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-M91P9505Z1', {
+            anonymize_ip: true
+        });
+    `;
+    document.head.appendChild(inlineScript);
+
+    // Create the external Google Analytics script
     const script = document.createElement('script');
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=G-M91P9505Z1`;
+    script.setAttribute('nonce', nonce);
     document.head.appendChild(script);
-
-    window.dataLayer = window.dataLayer || [];
-    function gtag() {
-        window.dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
-    gtag('config', 'G-M91P9505Z1');
 }
 
-export function initializeWeChatMetaTags(metadata: any) {
+export function initializeWeChatMetaTags(metadata: any, nonce: string) {
     const wechatMetaTags = [
         { name: 'description', content: metadata.description.zh },
         { property: 'og:type', content: 'website' },
@@ -37,5 +45,6 @@ export function initializeWeChatMetaTags(metadata: any) {
     const wxScript = document.createElement('script');
     wxScript.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
     wxScript.async = true;
+    wxScript.setAttribute('nonce', nonce);
     document.head.appendChild(wxScript);
 }
