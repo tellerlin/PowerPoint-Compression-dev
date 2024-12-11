@@ -19,6 +19,5 @@ export const siteMetadata = {
 
 export const preloadResources = [
     { rel: 'preload', href: '/favicon.svg', as: 'image' },
-    { rel: 'preload', href: '/byteslim-logo.svg', as: 'image' },
     { rel: 'preconnect', href: 'https://www.googletagmanager.com' }
 ];
